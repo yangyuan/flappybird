@@ -1,0 +1,19 @@
+body {
+  /*padding-top: 20px;*/
+  padding-bottom: 20px;
+}
+
+.footer {
+  padding-bottom: 1.5rem;
+  padding-top: 1rem;
+  border-top: .05rem solid #e5e5e5;
+  margin-top: 2rem;
+}
+
+.navbar {
+  margin-bottom: 20px;
+}
+
+#canvas {
+    border:1px solid #000000;
+}

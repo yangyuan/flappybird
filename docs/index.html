@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head profile="http://www.w3.org/2005/10/profile">
+    <link rel="icon" href="favicon.ico" type="image/x-icon" >
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="game.js"></script>
+    <script src="script.js"></script>
+</head>
+<body>
+
+<!-- header -->
+<header class="header">
+<nav class="navbar navbar-inverse bg-inverse navbar-toggleable-md">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleContainer" aria-controls="navbarsExampleContainer" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  <div class="container">
+    <a class="navbar-brand" href="/">Home</a>
+    <div class="collapse navbar-collapse" id="navbarsExampleContainer">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+        <a class="nav-link" href="https://github.com/yangyuan" target="_blank">Source Code</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+</header>
+
+<!-- bodyer -->
+<div class="container">
+
+    <div class="row">
+    <div class="btn-group" data-toggle="buttons">
+    <label class="btn btn-primary active">
+        <input type="radio" name="options" value="human" autocomplete="off" checked> Human
+    </label>
+    <label class="btn btn-primary">
+        <input type="radio" name="options" value="auto" autocomplete="off"> Auto
+    </label>
+    <label class="btn btn-primary">
+        <input type="radio" name="options" value="train" autocomplete="off"> Train
+    </label>
+    </div>
+
+
+    </div>
+    <div class="row">
+        <canvas id="canvas" width="900" height="600"></canvas>
+    </div>
+</div>
+
+
+<!-- footer -->
+<footer class="footer">
+      <div class="container">
+        <p>&copy; <a href="https://github.com/yangyuan" target="_blank">https://github.com/yangyuan<a></p>
+    </div>
+</footer>
+
+
+</body>
+</html>
