@@ -2,9 +2,13 @@ function init() {
     window.requestAnimationFrame(loop);
 }
 
+if (data == undefined) {
+    data = '[]';
+}
+
 let game = new Game();
 let agent = new Agent(game);
-let ai = new AiAgent(game);
+let ai = new AiAgent(game, data);
 
 function draw() {
     var c = document.getElementById("canvas");
@@ -31,9 +35,11 @@ setInterval(function(){
         if (mode != "human") {
             ai.update();
  }
- }, 200);
+ }, 50);
 
 $(function() {
+
+
     init();
     document.getElementById("canvas").addEventListener("mousedown", function( event ) {
         if (mode == "human") {
@@ -46,6 +52,11 @@ $(function() {
     
     $('input[type=radio][name=options]').change(function() {
         mode = this.value;
+        if (mode == "train") {
+            Configs.epsilon = 0.2;
+        } else {
+            Configs.epsilon = 0.0;
+        }
         console.log(this.value);
     });
 });

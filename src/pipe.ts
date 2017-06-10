@@ -3,11 +3,13 @@ class Pipe implements Sprite {
     upper:number;
     width:number;
     height:number;
+    pass:boolean;
 
     constructor() {
         this.offset = Configs.width;
         this.width = Configs.pipeWidth;
         this.height = Configs.pipeHeight;
+        this.pass = false;
         this.upper = (Math.random() * Configs.height/2) + Configs.height/4 - Configs.pipeHeight/2;
     }
 
@@ -26,13 +28,14 @@ class Pipe implements Sprite {
     checkCollision(bird:Bird):boolean {
         if (bird.offset + Configs.birdRadius > this.offset && bird.offset - Configs.birdRadius < this.offset + this.width) {
             if (bird.height - Configs.birdRadius < this.upper || bird.height + Configs.birdRadius > this.upper + this.height) {
-                console.log(bird.height);
-                console.log(this.upper);
-                console.log(this.upper + this.height);
                 return true;
             }
         }
 
         return false;
+    }
+
+    getAnchor():[number, number] {
+        return [this.offset + Configs.pipeWidth, this.upper + Configs.pipeHeight/2]
     }
 }

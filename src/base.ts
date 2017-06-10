@@ -13,11 +13,12 @@ abstract class GameEngine {
     }
 
     abstract tick(delta:number);
+    abstract renderBackground(context:CanvasRenderingContext2D);
 
     render(context:CanvasRenderingContext2D) {
         let time = new Date();
         let delta = (time.getTime() - this.time.getTime());
-        if (delta > 100) { // max speed 0.005
+        if (delta > 100) {
             delta = 100;
         }
 
@@ -28,6 +29,7 @@ abstract class GameEngine {
 
         this.time = time;
         
+        this.renderBackground(context);
         for (let sprite of this.sprites) {
             sprite.render(context);
         }

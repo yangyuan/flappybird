@@ -3,17 +3,16 @@
 
 enum GameState {
     None,
-    BeginGame,
     InGame,
-    EndGame,
-    Paused
+    EndGame
 }
 
 class Game extends GameEngine {
     timestamp:number;
     bird:Bird;
     pipes:Array<Pipe>;
-    private state:GameState;
+    state:GameState;
+    score:number;
 
     constructor() {
         super();
@@ -22,34 +21,65 @@ class Game extends GameEngine {
         this.timestamp = 0;
         this.bird = new Bird();
         this.pipes = [];
+        this.score = 0;
 
         this.sprites.push(this.bird);
     }
 
     click() {
         this.bird.jump();
+       if (this.state == GameState.EndGame) {
+           this.state = GameState.InGame;
+       }
+    }
+
+    renderBackground(context:CanvasRenderingContext2D) {
+        Assets.drawBackground(context);
     }
 
     tick(delta:number) {
+
+        if (this.state != GameState.InGame) {
+            this.bird.reset();
+            return;
+        }
+
         let old_timestamp:number = this.timestamp;
         this.timestamp += delta;
 
         let pipes = [];
-        if (Math.round(old_timestamp/3000) < Math.round(this.timestamp/3000)) {
+        if (Math.round(old_timestamp/1500) < Math.round(this.timestamp/1500)) {
             let pipe = new Pipe();
             pipes.push(pipe)
         }
 
-
         for (let pipe of this.pipes) {
             if (pipe.offset < -200) {
-
             } else if (pipe.checkCollision(this.bird)) {
-                this.bird.reset();
                 Assets.playSoundHit();
+                this.bird.reset();
+                this.score = 0;
+                this.state = GameState.EndGame;
             } else {
                 pipes.push(pipe);
             }
+        }
+
+        
+        for (let pipe of pipes) {
+            if (pipe.offset + Configs.pipeWidth + Configs.birdRadius < this.bird.offset && pipe.pass == false) {
+                pipe.pass = true;
+                this.score ++;
+                Assets.playSoundPoint();
+            }
+        }
+        
+        
+        if (this.bird.height - Configs.birdRadius < 0 || this.bird.height + Configs.birdRadius > Configs.height) {
+            Assets.playSoundHit();
+            this.bird.reset();
+            this.score = 0;
+            this.state = GameState.EndGame;
         }
 
         this.pipes = pipes;
