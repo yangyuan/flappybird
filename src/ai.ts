@@ -118,7 +118,7 @@ class QLearning {
             return value;
         }
 
-        return poz * Math.log(Math.abs(value)/base*Math.E*Math.E)*base/2
+        return poz * Math.log(Math.abs(value)/base*Math.E)*base;
     }
 
     setQValue(state:[number,number,number,number], action:boolean, value:number) {
