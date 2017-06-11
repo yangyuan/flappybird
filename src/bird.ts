@@ -26,12 +26,14 @@ class Bird implements Sprite {
     render(context:CanvasRenderingContext2D) {
         var radius = Configs.birdRadius;
 
-        context.beginPath();
-        context.arc(300, this.height, radius, 0, 2 * Math.PI, false);
-        context.fillStyle = 'yellow';
-        context.fill();
-        context.lineWidth = 5;
-        context.strokeStyle = '#003300';
-        context.stroke();
+        //context.beginPath();
+        //context.arc(300, this.height, radius, 0, 2 * Math.PI, false);
+        //context.fillStyle = 'yellow';
+        //context.fill();
+        //context.lineWidth = 5;
+        //context.strokeStyle = '#003300';
+        //context.stroke();
+
+        Assets.drawBird(context, this.height, this.velocity);
     }
 }

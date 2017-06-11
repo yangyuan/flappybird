@@ -192,6 +192,28 @@ class Assets {
         Assets.sfx_point.play();
     }
     static drawBackground(context) {
+        let alta = this.map_altas.get('bg_day');
+        context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], 0, 0, alta[2], Configs.height);
+        context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], alta[2], 0, alta[2], Configs.height);
+        context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], alta[2] * 2, 0, alta[2], Configs.height);
+    }
+    static drawPipe(context, offset, upper) {
+        let pipe_down = this.map_altas.get('pipe_down');
+        let pipe_up = this.map_altas.get('pipe_up');
+        //,["pipe_down",[112,646,52,320]],["pipe_up",[168,646,52,320]]
+        context.drawImage(this.img_altas, pipe_down[0], pipe_down[1], pipe_down[2], pipe_down[3], offset, upper - pipe_down[3] * 2, pipe_down[2] * 2, pipe_down[3] * 2);
+        context.drawImage(this.img_altas, pipe_up[0], pipe_up[1], pipe_up[2], pipe_up[3], offset, upper + Configs.pipeHeight, pipe_up[2] * 2, pipe_up[3] * 2);
+    }
+    static drawBird(context, height, velocity) {
+        let bird = this.map_altas.get('bird0_0');
+        var x = Configs.width / 2;
+        var y = Configs.height / 2;
+        let ang = 10;
+        context.save(); //saves the state of canvas
+        context.translate(Configs.birdOffset, height); //let's translate
+        context.rotate(Math.atan2(velocity, 20)); //increment the angle and rotate the image 
+        context.drawImage(this.img_altas, bird[0], bird[1], bird[2], bird[3], 0 - bird[3], 0 - bird[3], bird[2] * 2, bird[3] * 2);
+        context.restore(); //restore the state of canvas
     }
 }
 Assets.sfx_wing = new Audio('assets/sfx_wing.ogg');
@@ -243,22 +265,23 @@ class Bird {
     }
     render(context) {
         var radius = Configs.birdRadius;
-        context.beginPath();
-        context.arc(300, this.height, radius, 0, 2 * Math.PI, false);
-        context.fillStyle = 'yellow';
-        context.fill();
-        context.lineWidth = 5;
-        context.strokeStyle = '#003300';
-        context.stroke();
+        //context.beginPath();
+        //context.arc(300, this.height, radius, 0, 2 * Math.PI, false);
+        //context.fillStyle = 'yellow';
+        //context.fill();
+        //context.lineWidth = 5;
+        //context.strokeStyle = '#003300';
+        //context.stroke();
+        Assets.drawBird(context, this.height, this.velocity);
     }
 }
 var Configs;
 (function (Configs) {
     Configs.epsilon = 0.1;
-    Configs.width = 1024;
+    Configs.width = 768;
     Configs.height = 512;
-    Configs.pipeWidth = 100;
-    Configs.pipeHeight = 200;
+    Configs.pipeWidth = 104;
+    Configs.pipeHeight = 180;
     Configs.pipeSpeed = 0.25;
     Configs.birdOffset = 300;
     Configs.birdJumpSpeed = -11;
@@ -346,11 +369,12 @@ class Pipe {
         this.offset -= delta * Configs.pipeSpeed;
     }
     render(context) {
-        context.beginPath();
-        context.rect(this.offset, 0, this.width, this.upper);
-        context.rect(this.offset, this.upper + this.height, this.width, Configs.height);
-        context.fillStyle = 'green';
-        context.fill();
+        //context.beginPath();
+        //context.rect(this.offset, 0, this.width, this.upper);
+        //context.rect(this.offset, this.upper + this.height, this.width, Configs.height);
+        //context.fillStyle = 'green';
+        //context.fill();
+        Assets.drawPipe(context, this.offset, this.upper);
     }
     checkCollision(bird) {
         if (bird.offset + Configs.birdRadius > this.offset && bird.offset - Configs.birdRadius < this.offset + this.width) {

@@ -18,11 +18,12 @@ class Pipe implements Sprite {
     }
 
     render(context:CanvasRenderingContext2D) {
-        context.beginPath();
-        context.rect(this.offset, 0, this.width, this.upper);
-        context.rect(this.offset, this.upper + this.height, this.width, Configs.height);
-        context.fillStyle = 'green';
-        context.fill();
+        //context.beginPath();
+        //context.rect(this.offset, 0, this.width, this.upper);
+        //context.rect(this.offset, this.upper + this.height, this.width, Configs.height);
+        //context.fillStyle = 'green';
+        //context.fill();
+        Assets.drawPipe(context, this.offset, this.upper);
     }
 
     checkCollision(bird:Bird):boolean {

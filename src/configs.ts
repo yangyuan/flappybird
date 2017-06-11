@@ -1,10 +1,10 @@
 namespace Configs {
     export var epsilon = 0.1;
 
-    export var width = 1024;
+    export var width = 768;
     export var height = 512;
-    export var pipeWidth = 100;
-    export var pipeHeight = 200;
+    export var pipeWidth = 104;
+    export var pipeHeight = 180;
     export var pipeSpeed = 0.25;
     export var birdOffset = 300;
 

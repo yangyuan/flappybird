@@ -22,6 +22,35 @@ class Assets {
     }
 
     static drawBackground(context:CanvasRenderingContext2D) {
+        let alta = this.map_altas.get('bg_day');
+        context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], 0, 0, alta[2], Configs.height);
+        context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], alta[2], 0, alta[2], Configs.height);
+        context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], alta[2]*2, 0, alta[2], Configs.height);
+    }
+
+    static drawPipe (context:CanvasRenderingContext2D, offset:number, upper:number) {
+        let pipe_down = this.map_altas.get('pipe_down');
+        let pipe_up = this.map_altas.get('pipe_up');
+        //,["pipe_down",[112,646,52,320]],["pipe_up",[168,646,52,320]]
+        context.drawImage(this.img_altas, pipe_down[0], pipe_down[1], pipe_down[2], pipe_down[3],
+         offset, upper-pipe_down[3]*2, pipe_down[2]*2, pipe_down[3]*2);
+
+        context.drawImage(this.img_altas, pipe_up[0], pipe_up[1], pipe_up[2], pipe_up[3],
+         offset, upper+Configs.pipeHeight, pipe_up[2]*2, pipe_up[3]*2);
+    }
+
+    static drawBird (context:CanvasRenderingContext2D, height:number, velocity:number) {
+        let bird = this.map_altas.get('bird0_0');
+        var x = Configs.width / 2;
+        var y = Configs.height / 2;
+
+        let ang = 10;
+        context.save(); //saves the state of canvas
+        context.translate(Configs.birdOffset, height); //let's translate
+        context.rotate(Math.atan2(velocity ,20)); //increment the angle and rotate the image 
+        context.drawImage(this.img_altas, bird[0], bird[1], bird[2], bird[3],
+         0 -bird[3], 0-bird[3], bird[2]*2, bird[3]*2);
+        context.restore(); //restore the state of canvas
     }
 }
 
