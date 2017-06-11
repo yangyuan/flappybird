@@ -24,7 +24,7 @@ class BaseAgent {
         let anchor = null;
         for(let pipe of this.game.pipes) {
             let tmp = pipe.getAnchor();
-            if (tmp[0] > Configs.birdOffset) {
+            if (tmp[0] > Configs.birdOffset - Configs.birdRadius) {
                 if (anchor == null || anchor[0] > tmp[0]) {
                     anchor = tmp;
                 }
