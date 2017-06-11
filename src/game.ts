@@ -74,7 +74,6 @@ class Game extends GameEngine {
             }
         }
         
-        
         if (this.bird.height - Configs.birdRadius < 0 || this.bird.height + Configs.birdRadius > Configs.height) {
             Assets.playSoundHit();
             this.bird.reset();
