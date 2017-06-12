@@ -78,7 +78,7 @@ class QLearning {
         // 
         this.values = <Map<string, number>>new Map(JSON.parse(data))
         this.discount = 0.9;
-        this.alpha = 0.2;
+        this.alpha = 0.1;
     }
 
     getPolicy(state:[number,number,number,number]):boolean {
@@ -96,7 +96,7 @@ class QLearning {
         key += "," + Math.round(state[0]/100); // height
         key += "," + Math.round(state[1]/4);
         key += "," + Math.round(state[2]/100); //
-        key += "," + Math.round(this.getMagicNumber(state[3], 100)/10);
+        key += "," + Math.round(this.getMagicNumber(state[3], 100)/5);
         //key += "," + Math.round(Math.log(state[2]));
         //key += ","
         if (state[3] < 0) {

@@ -21,6 +21,10 @@ abstract class GameEngine {
         if (delta > 100) {
             delta = 100;
         }
+        
+        if (delta < 15) {
+            delta = 15;
+        }
 
         this.tick(delta)
         for (let sprite of this.sprites) {

@@ -96,7 +96,7 @@ class QLearning {
         // 
         this.values = new Map(JSON.parse(data));
         this.discount = 0.9;
-        this.alpha = 0.2;
+        this.alpha = 0.1;
     }
     getPolicy(state) {
         return this.computeActionFromQValues(state);
@@ -111,7 +111,7 @@ class QLearning {
         key += "," + Math.round(state[0] / 100); // height
         key += "," + Math.round(state[1] / 4);
         key += "," + Math.round(state[2] / 100); //
-        key += "," + Math.round(this.getMagicNumber(state[3], 100) / 10);
+        key += "," + Math.round(this.getMagicNumber(state[3], 100) / 5);
         //key += "," + Math.round(Math.log(state[2]));
         //key += ","
         if (state[3] < 0) {
@@ -235,6 +235,9 @@ class GameEngine {
         let delta = (time.getTime() - this.time.getTime());
         if (delta > 100) {
             delta = 100;
+        }
+        if (delta < 15) {
+            delta = 15;
         }
         this.tick(delta);
         for (let sprite of this.sprites) {
