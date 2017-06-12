@@ -291,7 +291,7 @@ var Configs;
     Configs.pipeHeight = 180;
     Configs.pipeSpeed = 0.25;
     Configs.birdOffset = 300;
-    Configs.birdSpeed = 0.15;
+    Configs.birdSpeed = 0.175;
     Configs.birdJumpSpeed = -5;
     Configs.birdGravityConstant = 0.02;
     Configs.birdRadius = 30;

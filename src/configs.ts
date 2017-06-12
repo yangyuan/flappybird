@@ -9,7 +9,7 @@ namespace Configs {
     export var birdOffset = 300;
 
     
-    export var birdSpeed = 0.15;
+    export var birdSpeed = 0.175;
     export var birdJumpSpeed = -5;
     export var birdGravityConstant = 0.02;
     export var birdRadius = 30;
