@@ -4,7 +4,7 @@ namespace Configs {
     export var width = 768;
     export var height = 512;
     export var pipeWidth = 104;
-    export var pipeHeight = 180;
+    export var pipeHeight = 200;
     export var pipeSpeed = 0.25;
     export var birdOffset = 300;
 

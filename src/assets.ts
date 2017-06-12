@@ -50,7 +50,7 @@ class Assets {
         let ang = 10;
         context.save(); //saves the state of canvas
         context.translate(Configs.birdOffset, height); //let's translate
-        context.rotate(Math.atan2(velocity ,20)); //increment the angle and rotate the image 
+        context.rotate(Math.atan2(velocity, 7.5)); //increment the angle and rotate the image 
         context.drawImage(this.img_altas, bird[0], bird[1], bird[2], bird[3],
          0 -bird[3], 0-bird[3], bird[2]*2, bird[3]*2);
         context.restore(); //restore the state of canvas
