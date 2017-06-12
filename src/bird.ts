@@ -19,8 +19,9 @@ class Bird implements Sprite {
     }
 
     tick(delta:number) {
-        this.velocity += delta * Configs.birdGravityConstant;
-        this.height += this.velocity;
+        let velocityDelta = delta * Configs.birdGravityConstant;
+        this.height += (this.velocity + (velocityDelta / 2)) * delta * Configs.birdSpeed; 
+        this.velocity += velocityDelta;
     }
 
     render(context:CanvasRenderingContext2D) {

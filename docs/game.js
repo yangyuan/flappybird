@@ -109,7 +109,7 @@ class QLearning {
     getKey(state, action) {
         let key = (action ? "t" : "f");
         key += "," + Math.round(state[0] / 100); // height
-        key += "," + Math.round(state[1] / 4);
+        key += "," + Math.round(state[1]);
         key += "," + Math.round(state[2] / 100); //
         key += "," + Math.round(this.getMagicNumber(state[3], 100) / 5);
         //key += "," + Math.round(Math.log(state[2]));
@@ -266,8 +266,9 @@ class Bird {
         this.height = Configs.height / 2;
     }
     tick(delta) {
-        this.velocity += delta * Configs.birdGravityConstant;
-        this.height += this.velocity;
+        let velocityDelta = delta * Configs.birdGravityConstant;
+        this.height += (this.velocity + (velocityDelta / 2)) * delta * Configs.birdSpeed;
+        this.velocity += velocityDelta;
     }
     render(context) {
         var radius = Configs.birdRadius;
@@ -290,8 +291,9 @@ var Configs;
     Configs.pipeHeight = 180;
     Configs.pipeSpeed = 0.25;
     Configs.birdOffset = 300;
-    Configs.birdJumpSpeed = -11;
-    Configs.birdGravityConstant = 0.04;
+    Configs.birdSpeed = 0.15;
+    Configs.birdJumpSpeed = -5;
+    Configs.birdGravityConstant = 0.02;
     Configs.birdRadius = 30;
 })(Configs || (Configs = {}));
 /// <reference path="./base.ts" />
