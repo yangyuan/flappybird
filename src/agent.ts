@@ -1,6 +1,17 @@
+/**
+ * The base class for Agents.
+ * Wrap and hide the game information from agents.
+ */
 class BaseAgent {
+    /**
+     * The game.
+     */
     private game:Game;
 
+    /**
+     * Initializes a new instance of the BaseAgent class.
+     * @param game the game instance
+     */
     constructor(game:Game) {
         this.game = game;
     }
@@ -8,6 +19,7 @@ class BaseAgent {
     click() {
         this.game.click();
     }
+
     protected getScore() {
         return this.game.score;
     }
@@ -47,7 +59,15 @@ class BaseAgent {
     }
 }
 
+/**
+ * The default agent for human to play games.
+ */
 class Agent extends BaseAgent {
+
+    /**
+     * Initializes a new instance of the Agent class.
+     * @param game the game instance
+     */
     constructor(game:Game) {
         super(game);
     }

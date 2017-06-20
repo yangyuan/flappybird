@@ -34,7 +34,12 @@ class Game extends GameEngine {
     }
 
     renderBackground(context:CanvasRenderingContext2D) {
-        Assets.drawBackground(context);
+        Assets.drawBackground(context, this.score);
+    }
+
+    
+    renderForeground(context:CanvasRenderingContext2D) {
+        Assets.drawScore(context, this.score);
     }
 
     tick(delta:number) {
@@ -48,9 +53,11 @@ class Game extends GameEngine {
         this.timestamp += delta;
 
         let pipes = [];
-        if (Math.round(old_timestamp/1500) < Math.round(this.timestamp/1500)) {
-            let pipe = new Pipe();
-            pipes.push(pipe)
+        if (Math.round(old_timestamp/Configs.pipeInterval) < Math.round(this.timestamp/Configs.pipeInterval)) {
+            //if (Math.random() > 0.1) {
+                let pipe = new Pipe();
+                pipes.push(pipe)
+            //}
         }
 
         for (let pipe of this.pipes) {

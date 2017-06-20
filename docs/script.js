@@ -35,7 +35,7 @@ setInterval(function(){
         if (mode != "human") {
             ai.update();
  }
- }, 50);
+ }, Configs.agentInterval);
 
 $(function() {
 
@@ -54,8 +54,10 @@ $(function() {
         mode = this.value;
         if (mode == "train") {
             Configs.epsilon = 0.2;
+            Configs.learn = true;
         } else {
             Configs.epsilon = 0.0;
+            Configs.learn = false;
         }
         console.log(this.value);
     });

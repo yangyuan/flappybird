@@ -1,4 +1,12 @@
+/**
+ * The base class for Agents.
+ * Wrap and hide the game information from agents.
+ */
 class BaseAgent {
+    /**
+     * Initializes a new instance of the BaseAgent class.
+     * @param game the game instance
+     */
     constructor(game) {
         this.game = game;
     }
@@ -38,7 +46,14 @@ class BaseAgent {
         }
     }
 }
+/**
+ * The default agent for human to play games.
+ */
 class Agent extends BaseAgent {
+    /**
+     * Initializes a new instance of the Agent class.
+     * @param game the game instance
+     */
     constructor(game) {
         super(game);
     }
@@ -47,6 +62,7 @@ class AiAgent extends BaseAgent {
     constructor(game, data) {
         super(game);
         this.ai = new QLearning(data);
+        this.time = new Date();
     }
     getCurrentState() {
         let state = [this.getBirdHeight(), this.getBirdVelocity(), 0, 0];
@@ -55,7 +71,12 @@ class AiAgent extends BaseAgent {
         state[3] = pipePos[1];
         return state;
     }
+    dump() {
+        return this.ai.dump();
+    }
     update() {
+        let time = new Date();
+        this.time = time;
         let state = this.getCurrentState();
         if (this.isAlive()) {
             let reward = 0;
@@ -95,23 +116,27 @@ class QLearning {
         // new Map();
         // 
         this.values = new Map(JSON.parse(data));
-        this.discount = 0.9;
-        this.alpha = 0.1;
+    }
+    dump() {
+        return JSON.stringify([...this.values]);
     }
     getPolicy(state) {
         return this.computeActionFromQValues(state);
     }
     update(state, action, nextState, reward) {
-        let qvalue = reward + this.discount * this.getValue(nextState);
-        qvalue = (1 - this.alpha) * this.getQValue(state, action) + this.alpha * qvalue;
+        if (!Configs.learn) {
+            return;
+        }
+        let qvalue = reward + Configs.discount * this.getValue(nextState);
+        qvalue = (1 - Configs.alpha) * this.getQValue(state, action) + Configs.alpha * qvalue;
         this.setQValue(state, action, qvalue);
     }
     getKey(state, action) {
         let key = (action ? "t" : "f");
         key += "," + Math.round(state[0] / 100); // height
         key += "," + Math.round(state[1]);
-        key += "," + Math.round(state[2] / 100); //
-        key += "," + Math.round(this.getMagicNumber(state[3], 100) / 5);
+        key += "," + Math.round(this.getMagicNumber(state[2], 100) / 25); //
+        key += "," + Math.round(this.getMagicNumber(state[3], 90) / 9);
         //key += "," + Math.round(Math.log(state[2]));
         //key += ","
         if (state[3] < 0) {
@@ -141,7 +166,7 @@ class QLearning {
             if (state[2] < 200) {
                 //console.log(key + ":" + this.values.get(key));
             }
-            console.log(key + ":" + this.values.get(key));
+            // console.log(key + ":" + this.values.get(key));
             return this.values.get(key);
         }
         //console.log(key + ":" + 0);
@@ -192,12 +217,17 @@ class Assets {
     static playSoundPoint() {
         Assets.sfx_point.play();
     }
-    static drawBackground(context) {
+    static playSoundMarioJump() {
+        Assets.mario_jump.play();
+    }
+    static drawBackground(context, score) {
         let alta = this.map_altas.get('bg_day');
         context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], 0, 0, alta[2], Configs.height);
         context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], alta[2], 0, alta[2], Configs.height);
         context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], alta[2] * 2, 0, alta[2], Configs.height);
-        // context.drawImage(this.img_rainbow, Configs.width/2, 100, 200, 100);
+        if (score > 20 && (score % 5 == 0)) {
+            context.drawImage(this.img_rainbow, Configs.width / 2, 100, 200, 100);
+        }
     }
     static drawPipe(context, offset, upper) {
         let pipe_down = this.map_altas.get('pipe_down');
@@ -217,10 +247,25 @@ class Assets {
         context.drawImage(this.img_altas, bird[0], bird[1], bird[2], bird[3], 0 - bird[3], 0 - bird[3], bird[2] * 2, bird[3] * 2);
         context.restore(); //restore the state of canvas
     }
+    static drawScore(context, score) {
+        //context.font="30px Arial";
+        //context.fillStyle = 'blue';
+        //context.fillText(score + "",10,40);
+        let scores = [];
+        for (let i = 3; i >= 0; i--) {
+            scores[i] = score % 10;
+            score = Math.floor(score / 10);
+        }
+        for (let i = 0; i < 4; i++) {
+            let alta = this.map_altas.get('font_0' + (48 + scores[i]));
+            context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], (i + 1) * 28 - alta[2] / 2 - 12, 0, alta[2], alta[3]);
+        }
+    }
 }
 Assets.sfx_wing = new Audio('assets/sfx_wing.ogg');
 Assets.sfx_hit = new Audio('assets/sfx_hit.ogg');
 Assets.sfx_point = new Audio('assets/sfx_point.ogg');
+Assets.mario_jump = new Audio('assets/mario_jump.ogg');
 Assets.img_altas = new Image(1024, 1024);
 Assets.data_altas = '[["bg_day",[0,0,288,512]],["bg_night",[292,0,288,512]],["bird0_0",[0,970,48,48]],["bird0_1",[56,970,48,48]],["bird0_2",[112,970,48,48]],["bird1_0",[168,970,48,48]],["bird1_1",[224,646,48,48]],["bird1_2",[224,698,48,48]],["bird2_0",[224,750,48,48]],["bird2_1",[224,802,48,48]],["bird2_2",[224,854,48,48]],["black",[584,412,32,32]],["blink_00",[276,682,10,10]],["blink_01",[276,734,10,10]],["blink_02",[276,786,10,10]],["brand_copyright",[884,182,126,14]],["button_menu",[924,52,80,28]],["button_ok",[924,84,80,28]],["button_pause",[242,612,26,28]],["button_play",[702,234,116,70]],["button_rate",[924,0,74,48]],["button_resume",[668,284,26,28]],["button_score",[822,234,116,70]],["button_share",[584,284,80,28]],["font_048",[992,116,24,44]],["font_049",[272,906,16,44]],["font_050",[584,316,24,44]],["font_051",[612,316,24,44]],["font_052",[640,316,24,44]],["font_053",[668,316,24,44]],["font_054",[584,364,24,44]],["font_055",[612,364,24,44]],["font_056",[640,364,24,44]],["font_057",[668,364,24,44]],["land",[584,0,336,112]],["medals_0",[242,516,44,44]],["medals_1",[242,564,44,44]],["medals_2",[224,906,44,44]],["medals_3",[224,954,44,44]],["new",[224,1002,32,14]],["number_context_00",[276,646,12,14]],["number_context_01",[276,664,12,14]],["number_context_02",[276,698,12,14]],["number_context_03",[276,716,12,14]],["number_context_04",[276,750,12,14]],["number_context_05",[276,768,12,14]],["number_context_06",[276,802,12,14]],["number_context_07",[276,820,12,14]],["number_context_08",[276,854,12,14]],["number_context_09",[276,872,12,14]],["number_context_10",[992,164,12,14]],["number_score_00",[272,612,16,20]],["number_score_01",[272,954,16,20]],["number_score_02",[272,978,16,20]],["number_score_03",[260,1002,16,20]],["number_score_04",[1002,0,16,20]],["number_score_05",[1002,24,16,20]],["number_score_06",[1008,52,16,20]],["number_score_07",[1008,84,16,20]],["number_score_08",[584,484,16,20]],["number_score_09",[620,412,16,20]],["pipe2_down",[0,646,52,320]],["pipe2_up",[56,646,52,320]],["pipe_down",[112,646,52,320]],["pipe_up",[168,646,52,320]],["score_panel",[0,516,238,126]],["text_game_over",[784,116,204,54]],["text_ready",[584,116,196,62]],["title",[702,182,178,48]],["tutorial",[584,182,114,98]],["white",[584,448,32,32]]]';
 Assets.img_rainbow = new Image(100, 50);
@@ -247,6 +292,13 @@ class GameEngine {
         this.renderBackground(context);
         for (let sprite of this.sprites) {
             sprite.render(context);
+        }
+        this.renderForeground(context);
+    }
+    emulate(delta) {
+        this.tick(delta);
+        for (let sprite of this.sprites) {
+            sprite.tick(delta);
         }
     }
 }
@@ -284,18 +336,54 @@ class Bird {
 }
 var Configs;
 (function (Configs) {
-    Configs.epsilon = 0.1;
+    Configs.epsilon = 0.5;
+    Configs.learn = true;
+    Configs.agentInterval = 25;
+    Configs.discount = 0.8;
+    Configs.alpha = 0.01;
     Configs.width = 768;
     Configs.height = 512;
     Configs.pipeWidth = 104;
-    Configs.pipeHeight = 200;
+    Configs.pipeHeight = 180;
     Configs.pipeSpeed = 0.25;
+    Configs.pipeInterval = 1500;
     Configs.birdOffset = 300;
-    Configs.birdSpeed = 0.175;
+    Configs.birdSpeed = 0.125;
     Configs.birdJumpSpeed = -5;
     Configs.birdGravityConstant = 0.02;
-    Configs.birdRadius = 30;
+    Configs.birdRadius = 28;
 })(Configs || (Configs = {}));
+class Emulator {
+    static run(data, dailyDump) {
+        let timestamp = 0;
+        let lastGameTick = 0;
+        let nextGameTick = 0;
+        let nextAgentTick = 0;
+        let game = new Game();
+        let agent = new Agent(game);
+        let ai = new AiAgent(game, data);
+        let counter = 0;
+        while (true) {
+            if (nextGameTick == timestamp) {
+                nextGameTick = timestamp + Math.round(Math.random() * 5) + 15;
+                game.emulate(timestamp - lastGameTick);
+                lastGameTick = timestamp;
+            }
+            if (nextAgentTick == timestamp) {
+                nextAgentTick = timestamp + Math.round(Math.random() * 4) + Configs.agentInterval - 2;
+                ai.update();
+            }
+            if (timestamp % (1000 * 60 * 60 * 24) == 0) {
+                counter++;
+                console.log(counter);
+                dailyDump(ai.dump());
+                // var fs = require('fs');
+                // fs.writeFileSync("C:\\Users\\Windows\\Desktop\\FAI\\dump.txt", ai.dump());
+            }
+            timestamp++;
+        }
+    }
+}
 /// <reference path="./base.ts" />
 var GameState;
 (function (GameState) {
@@ -320,7 +408,10 @@ class Game extends GameEngine {
         }
     }
     renderBackground(context) {
-        Assets.drawBackground(context);
+        Assets.drawBackground(context, this.score);
+    }
+    renderForeground(context) {
+        Assets.drawScore(context, this.score);
     }
     tick(delta) {
         if (this.state != GameState.InGame) {
@@ -330,9 +421,11 @@ class Game extends GameEngine {
         let old_timestamp = this.timestamp;
         this.timestamp += delta;
         let pipes = [];
-        if (Math.round(old_timestamp / 1500) < Math.round(this.timestamp / 1500)) {
+        if (Math.round(old_timestamp / Configs.pipeInterval) < Math.round(this.timestamp / Configs.pipeInterval)) {
+            //if (Math.random() > 0.1) {
             let pipe = new Pipe();
             pipes.push(pipe);
+            //}
         }
         for (let pipe of this.pipes) {
             if (pipe.offset < -200) {

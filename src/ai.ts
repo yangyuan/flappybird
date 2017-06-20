@@ -1,5 +1,6 @@
-
-
+/**
+ * The agent class for AI.
+ */
 class AiAgent extends BaseAgent {
 
     ai:QLearning;
@@ -7,10 +8,13 @@ class AiAgent extends BaseAgent {
     lastAction:boolean;
     lastScore:number;
 
+    time:Date;
+
     constructor(game:Game, data:string) {
         super(game);
         
         this.ai = new QLearning(data);
+        this.time = new Date();
     }
 
     getCurrentState():[number,number,number,number] {
@@ -21,7 +25,14 @@ class AiAgent extends BaseAgent {
         return state;
     }
 
+    dump ():string {
+        return this.ai.dump();
+    }
+
     update() {
+        let time = new Date();
+        this.time = time;
+
         let state = this.getCurrentState();
 
         if (this.isAlive()) {
@@ -66,9 +77,6 @@ class AiAgent extends BaseAgent {
 
 class QLearning {
 
-    discount:number;
-    alpha:number;
-
     values:Map<string, number>;
 
     constructor(data:string) {
@@ -77,8 +85,10 @@ class QLearning {
         // new Map();
         // 
         this.values = <Map<string, number>>new Map(JSON.parse(data))
-        this.discount = 0.9;
-        this.alpha = 0.1;
+    }
+
+    dump():string {
+        return JSON.stringify([...this.values]);
     }
 
     getPolicy(state:[number,number,number,number]):boolean {
@@ -86,8 +96,13 @@ class QLearning {
     }
 
     update(state, action, nextState, reward) {
-        let qvalue = reward + this.discount * this.getValue(nextState)
-        qvalue = (1 - this.alpha) * this.getQValue(state, action) + this.alpha * qvalue;
+
+        if (!Configs.learn) {
+            return;
+        }
+        
+        let qvalue = reward + Configs.discount * this.getValue(nextState)
+        qvalue = (1 - Configs.alpha) * this.getQValue(state, action) + Configs.alpha * qvalue;
         this.setQValue(state, action, qvalue)
     }
 
@@ -95,8 +110,8 @@ class QLearning {
         let key:string = (action?"t":"f");
         key += "," + Math.round(state[0]/100); // height
         key += "," + Math.round(state[1]);
-        key += "," + Math.round(state[2]/100); //
-        key += "," + Math.round(this.getMagicNumber(state[3], 100)/5);
+        key += "," + Math.round(this.getMagicNumber(state[2], 100) / 25); //
+        key += "," + Math.round(this.getMagicNumber(state[3], 90) / 9);
         //key += "," + Math.round(Math.log(state[2]));
         //key += ","
         if (state[3] < 0) {
@@ -134,7 +149,7 @@ class QLearning {
             if (state[2] < 200) {
                 //console.log(key + ":" + this.values.get(key));
             }
-            console.log(key + ":" + this.values.get(key));
+            // console.log(key + ":" + this.values.get(key));
             return this.values.get(key);
         }
 

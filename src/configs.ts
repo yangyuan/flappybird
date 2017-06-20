@@ -1,16 +1,22 @@
 namespace Configs {
-    export var epsilon = 0.1;
+    export var epsilon = 0.5;
+    export var learn = true;
+    export var agentInterval = 25;
+
+    
+    export var discount = 0.8;
+    export var alpha = 0.01;
 
     export var width = 768;
     export var height = 512;
     export var pipeWidth = 104;
-    export var pipeHeight = 200;
+    export var pipeHeight = 180;
     export var pipeSpeed = 0.25;
-    export var birdOffset = 300;
+    export var pipeInterval = 1500;
 
-    
-    export var birdSpeed = 0.175;
+    export var birdOffset = 300;
+    export var birdSpeed = 0.125;
     export var birdJumpSpeed = -5;
     export var birdGravityConstant = 0.02;
-    export var birdRadius = 30;
+    export var birdRadius = 28;
 }
