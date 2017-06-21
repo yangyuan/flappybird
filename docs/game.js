@@ -58,6 +58,9 @@ class Agent extends BaseAgent {
         super(game);
     }
 }
+/**
+ * The agent class for AI.
+ */
 class AiAgent extends BaseAgent {
     constructor(game, data) {
         super(game);
@@ -206,6 +209,7 @@ class Assets {
     static initialize() {
         this.img_altas.src = 'assets/atlas.png';
         this.img_rainbow.src = 'assets/rainbow.png';
+        this.img_mario.src = 'assets/mario.png';
         this.map_altas = new Map(JSON.parse(this.data_altas));
     }
     static playSoundWing() {
@@ -225,8 +229,19 @@ class Assets {
         context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], 0, 0, alta[2], Configs.height);
         context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], alta[2], 0, alta[2], Configs.height);
         context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], alta[2] * 2, 0, alta[2], Configs.height);
-        if (score > 20 && (score % 5 == 0)) {
+        if (score > 100 && (score % 15 == 0)) {
             context.drawImage(this.img_rainbow, Configs.width / 2, 100, 200, 100);
+        }
+    }
+    static drawMario(context, offset, upper) {
+        if (offset > Configs.marioJumpOffset) {
+            context.drawImage(this.img_mario, 40, 0, 40, 40, offset + Configs.pipeWidth - 72, upper + Configs.pipeHeight - 72, 80, 80);
+        }
+        else {
+            let delta = Configs.marioJumpOffset - offset;
+            let velocityDelta = delta * Configs.birdGravityConstant * 8;
+            let height = (-10 + (velocityDelta / 2)) * delta * Configs.birdSpeed;
+            context.drawImage(this.img_mario, 0, 0, 40, 40, offset + Configs.pipeWidth - 72 + delta, upper + Configs.pipeHeight - 72 + height, 80, 80);
         }
     }
     static drawPipe(context, offset, upper) {
@@ -269,6 +284,7 @@ Assets.mario_jump = new Audio('assets/mario_jump.ogg');
 Assets.img_altas = new Image(1024, 1024);
 Assets.data_altas = '[["bg_day",[0,0,288,512]],["bg_night",[292,0,288,512]],["bird0_0",[0,970,48,48]],["bird0_1",[56,970,48,48]],["bird0_2",[112,970,48,48]],["bird1_0",[168,970,48,48]],["bird1_1",[224,646,48,48]],["bird1_2",[224,698,48,48]],["bird2_0",[224,750,48,48]],["bird2_1",[224,802,48,48]],["bird2_2",[224,854,48,48]],["black",[584,412,32,32]],["blink_00",[276,682,10,10]],["blink_01",[276,734,10,10]],["blink_02",[276,786,10,10]],["brand_copyright",[884,182,126,14]],["button_menu",[924,52,80,28]],["button_ok",[924,84,80,28]],["button_pause",[242,612,26,28]],["button_play",[702,234,116,70]],["button_rate",[924,0,74,48]],["button_resume",[668,284,26,28]],["button_score",[822,234,116,70]],["button_share",[584,284,80,28]],["font_048",[992,116,24,44]],["font_049",[272,906,16,44]],["font_050",[584,316,24,44]],["font_051",[612,316,24,44]],["font_052",[640,316,24,44]],["font_053",[668,316,24,44]],["font_054",[584,364,24,44]],["font_055",[612,364,24,44]],["font_056",[640,364,24,44]],["font_057",[668,364,24,44]],["land",[584,0,336,112]],["medals_0",[242,516,44,44]],["medals_1",[242,564,44,44]],["medals_2",[224,906,44,44]],["medals_3",[224,954,44,44]],["new",[224,1002,32,14]],["number_context_00",[276,646,12,14]],["number_context_01",[276,664,12,14]],["number_context_02",[276,698,12,14]],["number_context_03",[276,716,12,14]],["number_context_04",[276,750,12,14]],["number_context_05",[276,768,12,14]],["number_context_06",[276,802,12,14]],["number_context_07",[276,820,12,14]],["number_context_08",[276,854,12,14]],["number_context_09",[276,872,12,14]],["number_context_10",[992,164,12,14]],["number_score_00",[272,612,16,20]],["number_score_01",[272,954,16,20]],["number_score_02",[272,978,16,20]],["number_score_03",[260,1002,16,20]],["number_score_04",[1002,0,16,20]],["number_score_05",[1002,24,16,20]],["number_score_06",[1008,52,16,20]],["number_score_07",[1008,84,16,20]],["number_score_08",[584,484,16,20]],["number_score_09",[620,412,16,20]],["pipe2_down",[0,646,52,320]],["pipe2_up",[56,646,52,320]],["pipe_down",[112,646,52,320]],["pipe_up",[168,646,52,320]],["score_panel",[0,516,238,126]],["text_game_over",[784,116,204,54]],["text_ready",[584,116,196,62]],["title",[702,182,178,48]],["tutorial",[584,182,114,98]],["white",[584,448,32,32]]]';
 Assets.img_rainbow = new Image(100, 50);
+Assets.img_mario = new Image(80, 40);
 Assets.initialize();
 class GameEngine {
     constructor() {
@@ -336,7 +352,7 @@ class Bird {
 }
 var Configs;
 (function (Configs) {
-    Configs.epsilon = 0.5;
+    Configs.epsilon = 0.2;
     Configs.learn = true;
     Configs.agentInterval = 25;
     Configs.discount = 0.8;
@@ -352,6 +368,7 @@ var Configs;
     Configs.birdJumpSpeed = -5;
     Configs.birdGravityConstant = 0.02;
     Configs.birdRadius = 28;
+    Configs.marioJumpOffset = 400;
 })(Configs || (Configs = {}));
 class Emulator {
     static run(data, dailyDump) {
@@ -422,10 +439,8 @@ class Game extends GameEngine {
         this.timestamp += delta;
         let pipes = [];
         if (Math.round(old_timestamp / Configs.pipeInterval) < Math.round(this.timestamp / Configs.pipeInterval)) {
-            //if (Math.random() > 0.1) {
-            let pipe = new Pipe();
+            let pipe = new Pipe(Math.random() < Math.pow(this.score, 0.5) / 200);
             pipes.push(pipe);
-            //}
         }
         for (let pipe of this.pipes) {
             if (pipe.offset < -200) {
@@ -459,12 +474,14 @@ class Game extends GameEngine {
     }
 }
 class Pipe {
-    constructor() {
+    constructor(mario) {
         this.offset = Configs.width;
         this.width = Configs.pipeWidth;
         this.height = Configs.pipeHeight;
         this.pass = false;
         this.upper = (Math.random() * Configs.height / 2) + Configs.height / 4 - Configs.pipeHeight / 2;
+        this.mario = mario;
+        this.marioJumped = false;
     }
     tick(delta) {
         this.offset -= delta * Configs.pipeSpeed;
@@ -476,6 +493,13 @@ class Pipe {
         //context.fillStyle = 'green';
         //context.fill();
         Assets.drawPipe(context, this.offset, this.upper);
+        if (this.mario) {
+            if (!this.marioJumped && this.offset < Configs.marioJumpOffset) {
+                this.marioJumped = true;
+                Assets.playSoundMarioJump();
+            }
+            Assets.drawMario(context, this.offset, this.upper);
+        }
     }
     checkCollision(bird) {
         if (bird.offset + Configs.birdRadius > this.offset && bird.offset - Configs.birdRadius < this.offset + this.width) {

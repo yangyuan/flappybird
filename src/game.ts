@@ -54,10 +54,8 @@ class Game extends GameEngine {
 
         let pipes = [];
         if (Math.round(old_timestamp/Configs.pipeInterval) < Math.round(this.timestamp/Configs.pipeInterval)) {
-            //if (Math.random() > 0.1) {
-                let pipe = new Pipe();
-                pipes.push(pipe)
-            //}
+            let pipe = new Pipe(Math.random() < Math.pow(this.score,0.5)/200);
+            pipes.push(pipe)
         }
 
         for (let pipe of this.pipes) {

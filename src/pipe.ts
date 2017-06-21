@@ -4,13 +4,17 @@ class Pipe implements Sprite {
     width:number;
     height:number;
     pass:boolean;
+    mario:boolean;
+    marioJumped:boolean;
 
-    constructor() {
+    constructor(mario:boolean) {
         this.offset = Configs.width;
         this.width = Configs.pipeWidth;
         this.height = Configs.pipeHeight;
         this.pass = false;
         this.upper = (Math.random() * Configs.height/2) + Configs.height/4 - Configs.pipeHeight/2;
+        this.mario = mario;
+        this.marioJumped = false;
     }
 
     tick(delta:number) {
@@ -23,7 +27,16 @@ class Pipe implements Sprite {
         //context.rect(this.offset, this.upper + this.height, this.width, Configs.height);
         //context.fillStyle = 'green';
         //context.fill();
+
         Assets.drawPipe(context, this.offset, this.upper);
+
+        if (this.mario) {
+            if (!this.marioJumped && this.offset < Configs.marioJumpOffset) {
+                this.marioJumped = true;
+                Assets.playSoundMarioJump();
+            }
+            Assets.drawMario(context, this.offset, this.upper);
+        }
     }
 
     checkCollision(bird:Bird):boolean {

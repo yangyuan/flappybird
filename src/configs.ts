@@ -1,5 +1,5 @@
 namespace Configs {
-    export var epsilon = 0.5;
+    export var epsilon = 0.2;
     export var learn = true;
     export var agentInterval = 25;
 
@@ -19,4 +19,6 @@ namespace Configs {
     export var birdJumpSpeed = -5;
     export var birdGravityConstant = 0.02;
     export var birdRadius = 28;
+
+    export var marioJumpOffset = 400;
 }
