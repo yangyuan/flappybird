@@ -51,7 +51,7 @@ class BaseAgent {
     }
 
     protected isAlive() {
-        if (this.game.state == GameState.EndGame) {
+        if (this.game.state == GameState.Ended) {
             return false;
         } else {
             return true;

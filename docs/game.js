@@ -38,7 +38,7 @@ class BaseAgent {
         return [anchor[0] - Configs.birdOffset, anchor[1] - this.game.bird.height];
     }
     isAlive() {
-        if (this.game.state == GameState.EndGame) {
+        if (this.game.state == GameState.Ended) {
             return false;
         }
         else {
@@ -212,17 +212,23 @@ class Assets {
         this.img_mario.src = 'assets/mario.png';
         this.map_altas = new Map(JSON.parse(this.data_altas));
     }
+    static playSoundSwooshing() {
+        this.sfx_swooshing.play();
+    }
     static playSoundWing() {
+        if (!Configs.ai) {
+            this.sfx_wing.load();
+        }
         this.sfx_wing.play();
     }
     static playSoundHit() {
-        Assets.sfx_hit.play();
+        this.sfx_hit.play();
     }
     static playSoundPoint() {
-        Assets.sfx_point.play();
+        this.sfx_point.play();
     }
     static playSoundMarioJump() {
-        Assets.mario_jump.play();
+        this.mario_jump.play();
     }
     static drawBackground(context, score) {
         let alta = this.map_altas.get('bg_day');
@@ -276,10 +282,16 @@ class Assets {
             context.drawImage(this.img_altas, alta[0], alta[1], alta[2], alta[3], (i + 1) * 28 - alta[2] / 2 - 12, 0, alta[2], alta[3]);
         }
     }
+    static drawFps(context, fps) {
+        context.font = "16px Arial";
+        context.fillStyle = 'white';
+        context.fillText("FPS:" + Math.round(fps) + "", Configs.width - 60, 20);
+    }
 }
 Assets.sfx_wing = new Audio('assets/sfx_wing.ogg');
 Assets.sfx_hit = new Audio('assets/sfx_hit.ogg');
 Assets.sfx_point = new Audio('assets/sfx_point.ogg');
+Assets.sfx_swooshing = new Audio('assets/sfx_swooshing.ogg');
 Assets.mario_jump = new Audio('assets/mario_jump.ogg');
 Assets.img_altas = new Image(1024, 1024);
 Assets.data_altas = '[["bg_day",[0,0,288,512]],["bg_night",[292,0,288,512]],["bird0_0",[0,970,48,48]],["bird0_1",[56,970,48,48]],["bird0_2",[112,970,48,48]],["bird1_0",[168,970,48,48]],["bird1_1",[224,646,48,48]],["bird1_2",[224,698,48,48]],["bird2_0",[224,750,48,48]],["bird2_1",[224,802,48,48]],["bird2_2",[224,854,48,48]],["black",[584,412,32,32]],["blink_00",[276,682,10,10]],["blink_01",[276,734,10,10]],["blink_02",[276,786,10,10]],["brand_copyright",[884,182,126,14]],["button_menu",[924,52,80,28]],["button_ok",[924,84,80,28]],["button_pause",[242,612,26,28]],["button_play",[702,234,116,70]],["button_rate",[924,0,74,48]],["button_resume",[668,284,26,28]],["button_score",[822,234,116,70]],["button_share",[584,284,80,28]],["font_048",[992,116,24,44]],["font_049",[272,906,16,44]],["font_050",[584,316,24,44]],["font_051",[612,316,24,44]],["font_052",[640,316,24,44]],["font_053",[668,316,24,44]],["font_054",[584,364,24,44]],["font_055",[612,364,24,44]],["font_056",[640,364,24,44]],["font_057",[668,364,24,44]],["land",[584,0,336,112]],["medals_0",[242,516,44,44]],["medals_1",[242,564,44,44]],["medals_2",[224,906,44,44]],["medals_3",[224,954,44,44]],["new",[224,1002,32,14]],["number_context_00",[276,646,12,14]],["number_context_01",[276,664,12,14]],["number_context_02",[276,698,12,14]],["number_context_03",[276,716,12,14]],["number_context_04",[276,750,12,14]],["number_context_05",[276,768,12,14]],["number_context_06",[276,802,12,14]],["number_context_07",[276,820,12,14]],["number_context_08",[276,854,12,14]],["number_context_09",[276,872,12,14]],["number_context_10",[992,164,12,14]],["number_score_00",[272,612,16,20]],["number_score_01",[272,954,16,20]],["number_score_02",[272,978,16,20]],["number_score_03",[260,1002,16,20]],["number_score_04",[1002,0,16,20]],["number_score_05",[1002,24,16,20]],["number_score_06",[1008,52,16,20]],["number_score_07",[1008,84,16,20]],["number_score_08",[584,484,16,20]],["number_score_09",[620,412,16,20]],["pipe2_down",[0,646,52,320]],["pipe2_up",[56,646,52,320]],["pipe_down",[112,646,52,320]],["pipe_up",[168,646,52,320]],["score_panel",[0,516,238,126]],["text_game_over",[784,116,204,54]],["text_ready",[584,116,196,62]],["title",[702,182,178,48]],["tutorial",[584,182,114,98]],["white",[584,448,32,32]]]';
@@ -290,6 +302,7 @@ class GameEngine {
     constructor() {
         this.sprites = [];
         this.time = new Date();
+        this.fps = 60;
     }
     render(context) {
         let time = new Date();
@@ -297,9 +310,7 @@ class GameEngine {
         if (delta > 100) {
             delta = 100;
         }
-        if (delta < 15) {
-            delta = 15;
-        }
+        this.fps = this.fps * 0.95 + 1 / delta * 0.05 * 1000;
         this.tick(delta);
         for (let sprite of this.sprites) {
             sprite.tick(delta);
@@ -324,6 +335,7 @@ class Bird {
         this.height = 0;
         this.velocity = 0;
         this.offset = Configs.birdOffset;
+        this.active = false;
     }
     jump() {
         this.velocity = Configs.birdJumpSpeed;
@@ -334,6 +346,9 @@ class Bird {
         this.height = Configs.height / 2;
     }
     tick(delta) {
+        if (!this.active) {
+            return;
+        }
         let velocityDelta = delta * Configs.birdGravityConstant;
         this.height += (this.velocity + (velocityDelta / 2)) * delta * Configs.birdSpeed;
         this.velocity += velocityDelta;
@@ -353,8 +368,9 @@ class Bird {
 var Configs;
 (function (Configs) {
     Configs.epsilon = 0.2;
+    Configs.ai = false;
     Configs.learn = true;
-    Configs.agentInterval = 25;
+    Configs.fps = 60;
     Configs.discount = 0.8;
     Configs.alpha = 0.01;
     Configs.width = 768;
@@ -375,20 +391,16 @@ class Emulator {
         let timestamp = 0;
         let lastGameTick = 0;
         let nextGameTick = 0;
-        let nextAgentTick = 0;
         let game = new Game();
         let agent = new Agent(game);
         let ai = new AiAgent(game, data);
         let counter = 0;
         while (true) {
             if (nextGameTick == timestamp) {
-                nextGameTick = timestamp + Math.round(Math.random() * 5) + 15;
+                nextGameTick = timestamp + Math.round(Math.random() * 4.9 + 1000 / Configs.fps - 2.4);
                 game.emulate(timestamp - lastGameTick);
-                lastGameTick = timestamp;
-            }
-            if (nextAgentTick == timestamp) {
-                nextAgentTick = timestamp + Math.round(Math.random() * 4) + Configs.agentInterval - 2;
                 ai.update();
+                lastGameTick = timestamp;
             }
             if (timestamp % (1000 * 60 * 60 * 24) == 0) {
                 counter++;
@@ -405,34 +417,47 @@ class Emulator {
 var GameState;
 (function (GameState) {
     GameState[GameState["None"] = 0] = "None";
-    GameState[GameState["InGame"] = 1] = "InGame";
-    GameState[GameState["EndGame"] = 2] = "EndGame";
+    GameState[GameState["Playing"] = 1] = "Playing";
+    GameState[GameState["Ended"] = 2] = "Ended";
 })(GameState || (GameState = {}));
 class Game extends GameEngine {
     constructor() {
         super();
-        this.state = GameState.InGame;
+        this.state = GameState.Playing;
         this.timestamp = 0;
         this.bird = new Bird();
         this.pipes = [];
         this.score = 0;
         this.sprites.push(this.bird);
     }
+    endGame() {
+        this.score = 0;
+        this.state = GameState.Ended;
+        this.pipes = [];
+        this.sprites = [];
+        this.bird.active = false;
+        this.bird.reset();
+        this.sprites.push(this.bird);
+    }
+    startGame() {
+        this.state = GameState.Playing;
+        this.bird.active = true;
+    }
     click() {
-        this.bird.jump();
-        if (this.state == GameState.EndGame) {
-            this.state = GameState.InGame;
+        if (this.state == GameState.Ended) {
+            this.startGame();
         }
+        this.bird.jump();
     }
     renderBackground(context) {
         Assets.drawBackground(context, this.score);
     }
     renderForeground(context) {
         Assets.drawScore(context, this.score);
+        Assets.drawFps(context, this.fps);
     }
     tick(delta) {
-        if (this.state != GameState.InGame) {
-            this.bird.reset();
+        if (this.state != GameState.Playing) {
             return;
         }
         let old_timestamp = this.timestamp;
@@ -447,38 +472,39 @@ class Game extends GameEngine {
             }
             else if (pipe.checkCollision(this.bird)) {
                 Assets.playSoundHit();
-                this.bird.reset();
-                this.score = 0;
-                this.state = GameState.EndGame;
+                this.endGame();
+                return;
             }
             else {
                 pipes.push(pipe);
             }
         }
         for (let pipe of pipes) {
-            if (pipe.offset + Configs.pipeWidth + Configs.birdRadius < this.bird.offset && pipe.pass == false) {
-                pipe.pass = true;
+            if (pipe.offset + Configs.pipeWidth + Configs.birdRadius < this.bird.offset && pipe.scored == false) {
+                pipe.scored = true;
                 this.score++;
                 Assets.playSoundPoint();
             }
         }
         if (this.bird.height - Configs.birdRadius < 0 || this.bird.height + Configs.birdRadius > Configs.height) {
             Assets.playSoundHit();
-            this.bird.reset();
-            this.score = 0;
-            this.state = GameState.EndGame;
+            this.endGame();
+            return;
         }
         this.pipes = pipes;
         this.sprites = this.pipes.slice();
         this.sprites.push(this.bird);
     }
 }
+/**
+ * The Sprite of Pipe
+ */
 class Pipe {
     constructor(mario) {
         this.offset = Configs.width;
         this.width = Configs.pipeWidth;
         this.height = Configs.pipeHeight;
-        this.pass = false;
+        this.scored = false;
         this.upper = (Math.random() * Configs.height / 2) + Configs.height / 4 - Configs.pipeHeight / 2;
         this.mario = mario;
         this.marioJumped = false;

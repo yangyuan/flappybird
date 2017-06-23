@@ -3,8 +3,8 @@
 
 enum GameState {
     None,
-    InGame,
-    EndGame
+    Playing,
+    Ended
 }
 
 class Game extends GameEngine {
@@ -17,7 +17,7 @@ class Game extends GameEngine {
     constructor() {
         super();
 
-        this.state = GameState.InGame;
+        this.state = GameState.Playing;
         this.timestamp = 0;
         this.bird = new Bird();
         this.pipes = [];
@@ -26,11 +26,26 @@ class Game extends GameEngine {
         this.sprites.push(this.bird);
     }
 
+    endGame() {
+        this.score = 0;
+        this.state = GameState.Ended;
+        this.pipes = [];
+        this.sprites = [];
+        this.bird.active = false;
+        this.bird.reset();
+        this.sprites.push(this.bird);
+    }
+
+    startGame() {
+        this.state = GameState.Playing;
+        this.bird.active = true;
+    }
+
     click() {
+        if (this.state == GameState.Ended) {
+            this.startGame();
+        }
         this.bird.jump();
-       if (this.state == GameState.EndGame) {
-           this.state = GameState.InGame;
-       }
     }
 
     renderBackground(context:CanvasRenderingContext2D) {
@@ -40,12 +55,12 @@ class Game extends GameEngine {
     
     renderForeground(context:CanvasRenderingContext2D) {
         Assets.drawScore(context, this.score);
+        Assets.drawFps(context, this.fps);
     }
 
     tick(delta:number) {
 
-        if (this.state != GameState.InGame) {
-            this.bird.reset();
+        if (this.state != GameState.Playing) {
             return;
         }
 
@@ -62,9 +77,8 @@ class Game extends GameEngine {
             if (pipe.offset < -200) {
             } else if (pipe.checkCollision(this.bird)) {
                 Assets.playSoundHit();
-                this.bird.reset();
-                this.score = 0;
-                this.state = GameState.EndGame;
+                this.endGame();
+                return;
             } else {
                 pipes.push(pipe);
             }
@@ -72,8 +86,8 @@ class Game extends GameEngine {
 
         
         for (let pipe of pipes) {
-            if (pipe.offset + Configs.pipeWidth + Configs.birdRadius < this.bird.offset && pipe.pass == false) {
-                pipe.pass = true;
+            if (pipe.offset + Configs.pipeWidth + Configs.birdRadius < this.bird.offset && pipe.scored == false) {
+                pipe.scored = true;
                 this.score ++;
                 Assets.playSoundPoint();
             }
@@ -81,9 +95,8 @@ class Game extends GameEngine {
         
         if (this.bird.height - Configs.birdRadius < 0 || this.bird.height + Configs.birdRadius > Configs.height) {
             Assets.playSoundHit();
-            this.bird.reset();
-            this.score = 0;
-            this.state = GameState.EndGame;
+            this.endGame();
+            return;
         }
 
         this.pipes = pipes;

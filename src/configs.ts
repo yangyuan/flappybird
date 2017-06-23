@@ -1,7 +1,8 @@
 namespace Configs {
     export var epsilon = 0.2;
+    export var ai = false;
     export var learn = true;
-    export var agentInterval = 25;
+    export var fps = 60;
 
     
     export var discount = 0.8;

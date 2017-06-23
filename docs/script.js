@@ -25,16 +25,18 @@ function draw() {
 
 function loop() {
     draw();
+    if (Configs.ai == true) {
+         ai.update();
+    }
     window.requestAnimationFrame(loop);
 }
 
 
-var mode = "human";
 
 setInterval(function(){ 
-        if (mode != "human") {
-            ai.update();
- }
+    if (Configs.ai == true) {
+         //ai.update();
+    }
  }, Configs.agentInterval);
 
 $(function() {
@@ -42,7 +44,7 @@ $(function() {
 
     init();
     document.getElementById("canvas").addEventListener("mousedown", function( event ) {
-        if (mode == "human") {
+        if (Configs.ai == false) {
             agent.click();
             draw();
         }
@@ -51,14 +53,23 @@ $(function() {
 
     
     $('input[type=radio][name=options]').change(function() {
-        mode = this.value;
-        if (mode == "train") {
-            Configs.epsilon = 0.2;
-            Configs.learn = true;
-        } else {
-            Configs.epsilon = 0.0;
-            Configs.learn = false;
+        switch (this.value) {
+            case "human":
+                Configs.ai = false;
+                Configs.learn = false;
+                Configs.epsilon = 0.0;
+                break;
+            case "auto":
+                Configs.ai = true;
+                Configs.learn = false;
+                Configs.epsilon = 0.0;
+                break;
+            case "train":
+                Configs.ai = true;
+                Configs.learn = true;
+                Configs.epsilon = 0.2;
+                break;
+
         }
-        console.log(this.value);
     });
 });

@@ -6,10 +6,12 @@ interface Sprite {
 abstract class GameEngine {
     protected sprites:Array<Sprite>;
     private time:Date;
+    public fps:number;
 
     constructor() {
         this.sprites = [];
         this.time = new Date();
+        this.fps = 60;
     }
 
     abstract tick(delta:number);
@@ -22,10 +24,8 @@ abstract class GameEngine {
         if (delta > 100) {
             delta = 100;
         }
-        
-        if (delta < 15) {
-            delta = 15;
-        }
+
+        this.fps = this.fps * 0.95 + 1 / delta * 0.05 * 1000
 
         this.tick(delta)
         for (let sprite of this.sprites) {

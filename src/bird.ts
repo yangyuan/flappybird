@@ -1,11 +1,12 @@
 class Bird implements Sprite {
     offset:number = 0;
-
+    active:boolean;
     height:number = 0;
     velocity:number = 0;
 
     constructor() {
         this.offset = Configs.birdOffset;
+        this.active = false;
     }
 
     jump() {
@@ -19,6 +20,10 @@ class Bird implements Sprite {
     }
 
     tick(delta:number) {
+        if (!this.active) {
+            return;
+        }
+        
         let velocityDelta = delta * Configs.birdGravityConstant;
         this.height += (this.velocity + (velocityDelta / 2)) * delta * Configs.birdSpeed; 
         this.velocity += velocityDelta;

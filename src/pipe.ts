@@ -1,17 +1,47 @@
+/**
+ * The Sprite of Pipe
+ */
 class Pipe implements Sprite {
+    /**
+     * Offset from the left of the screen.
+     */
     offset:number;
+
+    /**
+     * Upper bound of the pipe tunnel.
+     */
     upper:number;
+
+    /**
+     * Width of the pipe.
+     */
     width:number;
+
+    /**
+     * Height of the pipe tunnel.
+     */
     height:number;
-    pass:boolean;
+
+    /**
+     * If the pipe has passed the bird.
+     */
+    scored:boolean;
+
+    /**
+     * If there is a mario on the pipe.
+     */
     mario:boolean;
+
+    /**
+     * Did mario jumped?
+     */
     marioJumped:boolean;
 
     constructor(mario:boolean) {
         this.offset = Configs.width;
         this.width = Configs.pipeWidth;
         this.height = Configs.pipeHeight;
-        this.pass = false;
+        this.scored = false;
         this.upper = (Math.random() * Configs.height/2) + Configs.height/4 - Configs.pipeHeight/2;
         this.mario = mario;
         this.marioJumped = false;

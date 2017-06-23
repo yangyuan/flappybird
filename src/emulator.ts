@@ -4,7 +4,6 @@ class Emulator {
         let timestamp:number = 0;
         let lastGameTick:number = 0;
         let nextGameTick:number = 0;
-        let nextAgentTick:number = 0;
 
         let game = new Game();
         let agent = new Agent(game);
@@ -14,14 +13,10 @@ class Emulator {
 
         while(true) {
             if (nextGameTick == timestamp) {
-                nextGameTick = timestamp + Math.round(Math.random()*5) + 15;
+                nextGameTick = timestamp + Math.round(Math.random() * 4.9 + 1000/Configs.fps - 2.4);
                 game.emulate(timestamp - lastGameTick);
-                lastGameTick = timestamp;
-            }
-
-            if (nextAgentTick == timestamp) {
-                nextAgentTick = timestamp + Math.round(Math.random()*4) + Configs.agentInterval - 2;
                 ai.update();
+                lastGameTick = timestamp;
             }
 
             if (timestamp%(1000*60*60*24) == 0) {
