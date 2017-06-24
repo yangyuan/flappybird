@@ -86,7 +86,7 @@ class Game extends GameEngine {
 
         
         for (let pipe of pipes) {
-            if (pipe.offset + Configs.pipeWidth + Configs.birdRadius < this.bird.offset && pipe.scored == false) {
+            if (pipe.offset + Configs.pipeWidth + Configs.birdRadius <= this.bird.offset && pipe.scored == false) {
                 pipe.scored = true;
                 this.score ++;
                 Assets.playSoundPoint();

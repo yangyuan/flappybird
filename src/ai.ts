@@ -108,7 +108,7 @@ class QLearning {
 
     getKey(state:[number,number,number,number], action:boolean):string {
         let key:string = (action?"t":"f");
-        key += "," + Math.round(state[0]/100); // height
+        key += "," + Math.round(state[0]/128); // height
         key += "," + Math.round(state[1]);
         key += "," + Math.round(this.getMagicNumber(state[2], 100) / 25); //
         key += "," + Math.round(this.getMagicNumber(state[3], 90) / 9);

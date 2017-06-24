@@ -44,7 +44,7 @@ class BaseAgent {
         }
 
         if (anchor == null) {
-            anchor = [Configs.width, Configs.height/2];
+            anchor = [Configs.width + Configs.pipeWidth, Configs.height/2];
         }
 
         return [anchor[0] - Configs.birdOffset, anchor[1] - this.game.bird.height];

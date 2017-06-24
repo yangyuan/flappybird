@@ -33,7 +33,7 @@ class BaseAgent {
             }
         }
         if (anchor == null) {
-            anchor = [Configs.width, Configs.height / 2];
+            anchor = [Configs.width + Configs.pipeWidth, Configs.height / 2];
         }
         return [anchor[0] - Configs.birdOffset, anchor[1] - this.game.bird.height];
     }
@@ -136,7 +136,7 @@ class QLearning {
     }
     getKey(state, action) {
         let key = (action ? "t" : "f");
-        key += "," + Math.round(state[0] / 100); // height
+        key += "," + Math.round(state[0] / 128); // height
         key += "," + Math.round(state[1]);
         key += "," + Math.round(this.getMagicNumber(state[2], 100) / 25); //
         key += "," + Math.round(this.getMagicNumber(state[3], 90) / 9);
@@ -302,19 +302,23 @@ class GameEngine {
     constructor() {
         this.sprites = [];
         this.time = new Date();
-        this.fps = 60;
+        this.fps = Configs.fps;
     }
     render(context) {
         let time = new Date();
         let delta = (time.getTime() - this.time.getTime());
-        if (delta > 100) {
-            delta = 100;
-        }
         this.fps = this.fps * 0.95 + 1 / delta * 0.05 * 1000;
-        this.tick(delta);
+        let standardDelta = Math.round(1000 / Configs.fps);
+        if (delta > standardDelta + 3) {
+            delta = standardDelta + 3;
+        }
+        if (delta < standardDelta - 3) {
+            delta = standardDelta - 3;
+        }
         for (let sprite of this.sprites) {
             sprite.tick(delta);
         }
+        this.tick(delta);
         this.time = time;
         this.renderBackground(context);
         for (let sprite of this.sprites) {
@@ -397,7 +401,7 @@ class Emulator {
         let counter = 0;
         while (true) {
             if (nextGameTick == timestamp) {
-                nextGameTick = timestamp + Math.round(Math.random() * 4.9 + 1000 / Configs.fps - 2.4);
+                nextGameTick = timestamp + Math.round(Math.random() * 4.4 + 1000 / Configs.fps - 2.2);
                 game.emulate(timestamp - lastGameTick);
                 ai.update();
                 lastGameTick = timestamp;
@@ -480,7 +484,7 @@ class Game extends GameEngine {
             }
         }
         for (let pipe of pipes) {
-            if (pipe.offset + Configs.pipeWidth + Configs.birdRadius < this.bird.offset && pipe.scored == false) {
+            if (pipe.offset + Configs.pipeWidth + Configs.birdRadius <= this.bird.offset && pipe.scored == false) {
                 pipe.scored = true;
                 this.score++;
                 Assets.playSoundPoint();

@@ -11,7 +11,7 @@ abstract class GameEngine {
     constructor() {
         this.sprites = [];
         this.time = new Date();
-        this.fps = 60;
+        this.fps = Configs.fps;
     }
 
     abstract tick(delta:number);
@@ -21,16 +21,22 @@ abstract class GameEngine {
     render(context:CanvasRenderingContext2D) {
         let time = new Date();
         let delta = (time.getTime() - this.time.getTime());
-        if (delta > 100) {
-            delta = 100;
-        }
 
         this.fps = this.fps * 0.95 + 1 / delta * 0.05 * 1000
 
-        this.tick(delta)
+        let standardDelta = Math.round(1000/Configs.fps);
+        if (delta > standardDelta + 3) {
+            delta = standardDelta + 3;
+        }
+
+        if (delta < standardDelta - 3) {
+            delta = standardDelta - 3;
+        }
+
         for (let sprite of this.sprites) {
             sprite.tick(delta);
         }
+        this.tick(delta)
 
         this.time = time;
         
