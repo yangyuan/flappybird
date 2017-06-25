@@ -3,30 +3,34 @@
  */
 class AiAgent extends BaseAgent {
 
-    ai:QLearning;
-    lastState:[number,number,number,number];
-    lastAction:boolean;
-    lastScore:number;
+    ai: QLearning;
+    lastState: [number, number, number, number];
+    lastAction: boolean;
+    lastScore: number;
 
-    time:Date;
+    time: Date;
 
-    constructor(game:Game, data:string) {
+    constructor(game: Game, data: string) {
         super(game);
-        
+
         this.ai = new QLearning(data);
         this.time = new Date();
     }
 
-    getCurrentState():[number,number,number,number] {
-        let state:[number,number,number,number] = [this.getBirdHeight(), this.getBirdVelocity(), 0, 0];
+    getCurrentState(): [number, number, number, number] {
+        let state: [number, number, number, number] = [this.getBirdHeight(), this.getBirdVelocity(), 0, 0];
         let pipePos = this.getPipeRelativePosition();
         state[2] = pipePos[0];
         state[3] = pipePos[1];
         return state;
     }
 
-    dump ():string {
+    dump(): string {
         return this.ai.dump();
+    }
+
+    getNoise(): number {
+        return this.ai.noise;
     }
 
     update() {
@@ -41,12 +45,12 @@ class AiAgent extends BaseAgent {
 
             let pipePos = this.getPipeRelativePosition();
             let delta = Math.abs(pipePos[1]);
-            if (delta < Configs.pipeHeight/2) {
-               // reward = 1;
+            if (delta < Configs.pipeHeight / 2) {
+                // reward = 1;
             }
 
             if (this.getScore() > this.lastScore) {
-                reward = 1024;
+                reward = 1048576;
                 this.lastScore = this.getScore();
             }
 
@@ -63,9 +67,9 @@ class AiAgent extends BaseAgent {
         } else {
             this.lastScore = 0;
             if (this.lastState != null) {
-                this.ai.update(this.lastState, this.lastAction, state, -1024);
+                this.ai.update(this.lastState, this.lastAction, state, -1048576);
             }
-            
+
             this.lastState = null;
             this.lastAction = null;
 
@@ -77,21 +81,23 @@ class AiAgent extends BaseAgent {
 
 class QLearning {
 
-    values:Map<string, number>;
+    values: Map<string, number>;
+    noise: number;
 
-    constructor(data:string) {
+    constructor(data: string) {
 
         // JSON.stringify([...this.values])
         // new Map();
         // 
+        this.noise = 0;
         this.values = <Map<string, number>>new Map(JSON.parse(data))
     }
 
-    dump():string {
+    dump(): string {
         return JSON.stringify([...this.values]);
     }
 
-    getPolicy(state:[number,number,number,number]):boolean {
+    getPolicy(state: [number, number, number, number]): boolean {
         return this.computeActionFromQValues(state);
     }
 
@@ -100,15 +106,21 @@ class QLearning {
         if (!Configs.learn) {
             return;
         }
-        
+
         let qvalue = reward + Configs.discount * this.getValue(nextState)
-        qvalue = (1 - Configs.alpha) * this.getQValue(state, action) + Configs.alpha * qvalue;
+        let oldQvalue = this.getQValue(state, action);
+
+        if (qvalue != 0) {
+            this.noise = Math.abs((oldQvalue - qvalue) / (Math.abs(qvalue) + Math.abs(oldQvalue))) * 0.001 + this.noise * 0.999;
+        }
+
+        qvalue = (1 - Configs.alpha) * oldQvalue + Configs.alpha * qvalue;
         this.setQValue(state, action, qvalue)
     }
 
-    getKey(state:[number,number,number,number], action:boolean):string {
-        let key:string = (action?"t":"f");
-        key += "," + Math.round(state[0]/128); // height
+    getKey(state: [number, number, number, number], action: boolean): string {
+        let key: string = (action ? "t" : "f");
+        key += "," + Math.round(state[0] / 128); // height
         key += "," + Math.round(state[1]);
         key += "," + Math.round(this.getMagicNumber(state[2], 100) / 25); //
         key += "," + Math.round(this.getMagicNumber(state[3], 90) / 9);
@@ -122,7 +134,7 @@ class QLearning {
         return key;
     }
 
-    getMagicNumber(value:number, base:number) {
+    getMagicNumber(value: number, base: number) {
         let poz = 1;
         let abs = Math.abs(value);
         if (value < 0) {
@@ -133,37 +145,31 @@ class QLearning {
             return value;
         }
 
-        return poz * Math.log(Math.abs(value)/base*Math.E)*base;
+        return poz * Math.log(Math.abs(value) / base * Math.E) * base;
     }
 
-    setQValue(state:[number,number,number,number], action:boolean, value:number) {
-        let key:string = this.getKey(state, action);
+    setQValue(state: [number, number, number, number], action: boolean, value: number) {
+        let key: string = this.getKey(state, action);
         this.values.set(key, Number(value.toPrecision(8)));
     }
 
-    getQValue(state:[number,number,number,number], action:boolean) {
-        let key:string = this.getKey(state, action);
-
+    getQValue(state: [number, number, number, number], action: boolean) {
+        let key: string = this.getKey(state, action);
 
         if (this.values.has(key)) {
-            if (state[2] < 200) {
-                //console.log(key + ":" + this.values.get(key));
-            }
-            // console.log(key + ":" + this.values.get(key));
             return this.values.get(key);
         }
 
-            //console.log(key + ":" + 0);
         return 0
     }
 
-    computeValueFromQValues(state):number {
+    computeValueFromQValues(state): number {
         var qValueTrue = this.getQValue(state, true);
         var qValueFalse = this.getQValue(state, false);
         return Math.max(qValueTrue, qValueFalse, 0)
     }
 
-    computeActionFromQValues(state):boolean {
+    computeActionFromQValues(state): boolean {
         var qValueTrue = this.getQValue(state, true);
         var qValueFalse = this.getQValue(state, false);
 
@@ -178,7 +184,7 @@ class QLearning {
         // TODO: random choose when equal
     }
 
-    getAction(state):boolean {
+    getAction(state): boolean {
         Math.random()
         if (Util.flipCoin(Configs.epsilon)) {
             return Math.random() < 0.1;
@@ -187,7 +193,7 @@ class QLearning {
         }
     }
 
-    getValue(state):number {
+    getValue(state): number {
         return this.computeValueFromQValues(state);
     }
 }

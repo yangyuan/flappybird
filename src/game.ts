@@ -8,11 +8,11 @@ enum GameState {
 }
 
 class Game extends GameEngine {
-    timestamp:number;
-    bird:Bird;
-    pipes:Array<Pipe>;
-    state:GameState;
-    score:number;
+    timestamp: number;
+    bird: Bird;
+    pipes: Array<Pipe>;
+    state: GameState;
+    score: number;
 
     constructor() {
         super();
@@ -48,28 +48,28 @@ class Game extends GameEngine {
         this.bird.jump();
     }
 
-    renderBackground(context:CanvasRenderingContext2D) {
+    renderBackground(context: CanvasRenderingContext2D) {
         Assets.drawBackground(context, this.score);
     }
 
-    
-    renderForeground(context:CanvasRenderingContext2D) {
+
+    renderForeground(context: CanvasRenderingContext2D) {
         Assets.drawScore(context, this.score);
         Assets.drawFps(context, this.fps);
     }
 
-    tick(delta:number) {
+    tick(delta: number) {
 
         if (this.state != GameState.Playing) {
             return;
         }
 
-        let old_timestamp:number = this.timestamp;
+        let old_timestamp: number = this.timestamp;
         this.timestamp += delta;
 
         let pipes = [];
-        if (Math.round(old_timestamp/Configs.pipeInterval) < Math.round(this.timestamp/Configs.pipeInterval)) {
-            let pipe = new Pipe(Math.random() < Math.pow(this.score,0.5)/200);
+        if (Math.round(old_timestamp / Configs.pipeInterval) < Math.round(this.timestamp / Configs.pipeInterval)) {
+            let pipe = new Pipe(Math.random() < Math.pow(this.score, 0.5) / 200);
             pipes.push(pipe)
         }
 
@@ -84,15 +84,15 @@ class Game extends GameEngine {
             }
         }
 
-        
+
         for (let pipe of pipes) {
             if (pipe.offset + Configs.pipeWidth + Configs.birdRadius <= this.bird.offset && pipe.scored == false) {
                 pipe.scored = true;
-                this.score ++;
+                this.score++;
                 Assets.playSoundPoint();
             }
         }
-        
+
         if (this.bird.height - Configs.birdRadius < 0 || this.bird.height + Configs.birdRadius > Configs.height) {
             Assets.playSoundHit();
             this.endGame();

@@ -77,6 +77,9 @@ class AiAgent extends BaseAgent {
     dump() {
         return this.ai.dump();
     }
+    getNoise() {
+        return this.ai.noise;
+    }
     update() {
         let time = new Date();
         this.time = time;
@@ -90,7 +93,7 @@ class AiAgent extends BaseAgent {
                 // reward = 1;
             }
             if (this.getScore() > this.lastScore) {
-                reward = 1024;
+                reward = 1048576;
                 this.lastScore = this.getScore();
             }
             if (this.lastState != null) {
@@ -105,7 +108,7 @@ class AiAgent extends BaseAgent {
         else {
             this.lastScore = 0;
             if (this.lastState != null) {
-                this.ai.update(this.lastState, this.lastAction, state, -1024);
+                this.ai.update(this.lastState, this.lastAction, state, -1048576);
             }
             this.lastState = null;
             this.lastAction = null;
@@ -118,6 +121,7 @@ class QLearning {
         // JSON.stringify([...this.values])
         // new Map();
         // 
+        this.noise = 0;
         this.values = new Map(JSON.parse(data));
     }
     dump() {
@@ -131,7 +135,11 @@ class QLearning {
             return;
         }
         let qvalue = reward + Configs.discount * this.getValue(nextState);
-        qvalue = (1 - Configs.alpha) * this.getQValue(state, action) + Configs.alpha * qvalue;
+        let oldQvalue = this.getQValue(state, action);
+        if (qvalue != 0) {
+            this.noise = Math.abs((oldQvalue - qvalue) / (Math.abs(qvalue) + Math.abs(oldQvalue))) * 0.001 + this.noise * 0.999;
+        }
+        qvalue = (1 - Configs.alpha) * oldQvalue + Configs.alpha * qvalue;
         this.setQValue(state, action, qvalue);
     }
     getKey(state, action) {
@@ -166,13 +174,8 @@ class QLearning {
     getQValue(state, action) {
         let key = this.getKey(state, action);
         if (this.values.has(key)) {
-            if (state[2] < 200) {
-                //console.log(key + ":" + this.values.get(key));
-            }
-            // console.log(key + ":" + this.values.get(key));
             return this.values.get(key);
         }
-        //console.log(key + ":" + 0);
         return 0;
     }
     computeValueFromQValues(state) {
@@ -389,7 +392,7 @@ var Configs;
     Configs.ai = false;
     Configs.learn = true;
     Configs.fps = 60;
-    Configs.discount = 0.8;
+    Configs.discount = 0.9;
     Configs.alpha = 0.01;
     Configs.width = 768;
     Configs.height = 512;
@@ -415,7 +418,7 @@ class Emulator {
         let counter = 0;
         while (true) {
             if (nextGameTick == timestamp) {
-                nextGameTick = timestamp + Math.round(Math.random() * 4.4 + 1000 / Configs.fps - 2.2);
+                nextGameTick = timestamp + Math.round(Math.random() * 6 + 1000 / Configs.fps - 3);
                 game.emulate(timestamp - lastGameTick);
                 ai.update();
                 lastGameTick = timestamp;
@@ -424,8 +427,9 @@ class Emulator {
                 counter++;
                 console.log(counter);
                 dailyDump(ai.dump());
-                // var fs = require('fs');
-                // fs.writeFileSync("C:\\Users\\Windows\\Desktop\\FAI\\dump.txt", ai.dump());
+            }
+            if (timestamp % (1000 * 60 * 60) == 0) {
+                console.log("  Noise: " + ai.getNoise());
             }
             timestamp++;
         }

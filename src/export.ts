@@ -2,7 +2,7 @@
 /// <reference path="./emulator.ts" />
 
 declare var exports: any
-(function(exports){
+(function (exports) {
   exports.Emulator = Emulator;
   exports.Configs = Configs;
-} (typeof exports === 'undefined' ? {} : exports));
+}(typeof exports === 'undefined' ? {} : exports));

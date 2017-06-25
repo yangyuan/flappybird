@@ -6,13 +6,13 @@ class BaseAgent {
     /**
      * The game.
      */
-    private game:Game;
+    private game: Game;
 
     /**
      * Initializes a new instance of the BaseAgent class.
      * @param game the game instance
      */
-    constructor(game:Game) {
+    constructor(game: Game) {
         this.game = game;
     }
 
@@ -34,7 +34,7 @@ class BaseAgent {
 
     protected getPipeRelativePosition() {
         let anchor = null;
-        for(let pipe of this.game.pipes) {
+        for (let pipe of this.game.pipes) {
             let tmp = pipe.getAnchor();
             if (tmp[0] > Configs.birdOffset - Configs.birdRadius) {
                 if (anchor == null || anchor[0] > tmp[0]) {
@@ -44,7 +44,7 @@ class BaseAgent {
         }
 
         if (anchor == null) {
-            anchor = [Configs.width + Configs.pipeWidth, Configs.height/2];
+            anchor = [Configs.width + Configs.pipeWidth, Configs.height / 2];
         }
 
         return [anchor[0] - Configs.birdOffset, anchor[1] - this.game.bird.height];
@@ -68,7 +68,7 @@ class Agent extends BaseAgent {
      * Initializes a new instance of the Agent class.
      * @param game the game instance
      */
-    constructor(game:Game) {
+    constructor(game: Game) {
         super(game);
     }
 }

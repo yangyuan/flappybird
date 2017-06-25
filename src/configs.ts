@@ -4,8 +4,8 @@ namespace Configs {
     export var learn = true;
     export var fps = 60;
 
-    
-    export var discount = 0.8;
+
+    export var discount = 0.9;
     export var alpha = 0.01;
 
     export var width = 768;

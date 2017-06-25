@@ -26,33 +26,33 @@ function draw() {
 function loop() {
     draw();
     if (Configs.ai == true) {
-         ai.update();
+        ai.update();
     }
     window.requestAnimationFrame(loop);
 }
 
 
 
-setInterval(function(){ 
+setInterval(function () {
     if (Configs.ai == true) {
-         //ai.update();
+        //ai.update();
     }
- }, Configs.agentInterval);
+}, Configs.agentInterval);
 
-$(function() {
+$(function () {
 
 
     init();
-    document.getElementById("canvas").addEventListener("mousedown", function( event ) {
+    document.getElementById("canvas").addEventListener("mousedown", function (event) {
         if (Configs.ai == false) {
             agent.click();
             draw();
         }
     }, false);
-    document.getElementById("canvas").addEventListener('mousedown', function(e){ e.preventDefault(); }, false);
+    document.getElementById("canvas").addEventListener('mousedown', function (e) { e.preventDefault(); }, false);
 
-    
-    $('input[type=radio][name=options]').change(function() {
+
+    $('input[type=radio][name=options]').change(function () {
         switch (this.value) {
             case "human":
                 Configs.ai = false;

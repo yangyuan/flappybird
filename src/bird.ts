@@ -1,8 +1,8 @@
 class Bird implements Sprite {
-    offset:number = 0;
-    active:boolean;
-    height:number = 0;
-    velocity:number = 0;
+    offset: number = 0;
+    active: boolean;
+    height: number = 0;
+    velocity: number = 0;
 
     constructor() {
         this.offset = Configs.birdOffset;
@@ -16,20 +16,20 @@ class Bird implements Sprite {
 
     reset() {
         this.velocity = 0;
-        this.height = Configs.height/2;
+        this.height = Configs.height / 2;
     }
 
-    tick(delta:number) {
+    tick(delta: number) {
         if (!this.active) {
             return;
         }
-        
+
         let velocityDelta = delta * Configs.birdGravityConstant;
-        this.height += (this.velocity + (velocityDelta / 2)) * delta * Configs.birdSpeed; 
+        this.height += (this.velocity + (velocityDelta / 2)) * delta * Configs.birdSpeed;
         this.velocity += velocityDelta;
     }
 
-    render(context:CanvasRenderingContext2D) {
+    render(context: CanvasRenderingContext2D) {
         var radius = Configs.birdRadius;
 
         //context.beginPath();
