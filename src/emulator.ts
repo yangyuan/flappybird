@@ -13,7 +13,7 @@ class Emulator {
 
         while (true) {
             if (nextGameTick == timestamp) {
-                nextGameTick = timestamp + Math.round(Math.random() * Configs.intervalDelta + Math.random() * Configs.intervalDelta + 1000 / Configs.fps - Configs.intervalDelta);
+                nextGameTick = timestamp + Math.round((Math.random() + Math.random()) * (Configs.intervalDelta + 2) + 1000 / Configs.fps - Configs.intervalDelta - 2);
                 game.emulate(timestamp - lastGameTick);
                 ai.update();
                 lastGameTick = timestamp;

@@ -10,18 +10,34 @@ class BaseAgent {
     constructor(game) {
         this.game = game;
     }
+    /**
+     * Trigger actions after a click event.
+     */
     click() {
         this.game.click();
     }
+    /**
+     * Get the socre of the game.
+     */
     getScore() {
         return this.game.score;
     }
+    /**
+     * Get the height of the bird.
+     */
     getBirdHeight() {
         return this.game.bird.height;
     }
+    /**
+     * Get the velocity of the bird.
+     */
     getBirdVelocity() {
         return this.game.bird.velocity;
     }
+    /**
+     * Get the bird's relative position to the first pipe's right center.
+     * If there is no pipe, assume this is a pipe at right center of the screen.
+     */
     getPipeRelativePosition() {
         let anchor = null;
         for (let pipe of this.game.pipes) {
@@ -37,6 +53,9 @@ class BaseAgent {
         }
         return [anchor[0] - Configs.birdOffset, anchor[1] - this.game.bird.height];
     }
+    /**
+     * Is bird alive.
+     */
     isAlive() {
         if (this.game.state == GameState.Ended) {
             return false;
@@ -407,7 +426,7 @@ class Emulator {
         let counter = 0;
         while (true) {
             if (nextGameTick == timestamp) {
-                nextGameTick = timestamp + Math.round(Math.random() * Configs.intervalDelta + Math.random() * Configs.intervalDelta + 1000 / Configs.fps - Configs.intervalDelta);
+                nextGameTick = timestamp + Math.round((Math.random() + Math.random()) * (Configs.intervalDelta + 2) + 1000 / Configs.fps - Configs.intervalDelta - 2);
                 game.emulate(timestamp - lastGameTick);
                 ai.update();
                 lastGameTick = timestamp;
