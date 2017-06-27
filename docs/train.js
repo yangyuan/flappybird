@@ -3,7 +3,7 @@ const data = require('./data');
 
 game.Configs.epsilon = 0.5
 game.Configs.pipeInterval = 2600
-game.Configs.alpha = 0.01
+game.Configs.alpha = 0.1
 game.Configs.birdRadius = 28
 
 game.Emulator.run(data.data, function (dump) {

@@ -3,6 +3,7 @@ namespace Configs {
     export var ai = false;
     export var learn = true;
     export var fps = 60;
+    export var intervalDelta = 3;
 
 
     export var discount = 0.9;

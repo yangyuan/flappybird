@@ -313,17 +313,7 @@ class GameEngine {
         let time = new Date();
         let delta = (time.getTime() - this.time.getTime());
         this.fps = this.fps * 0.95 + 1 / delta * 0.05 * 1000;
-        let standardDelta = Math.round(1000 / Configs.fps);
-        if (delta > standardDelta + 3) {
-            delta = standardDelta + 3;
-        }
-        if (delta < standardDelta - 3) {
-            delta = standardDelta - 3;
-        }
-        for (let sprite of this.sprites) {
-            sprite.tick(delta);
-        }
-        this.tick(delta);
+        this.internalTick(delta);
         this.time = time;
         this.renderBackground(context);
         for (let sprite of this.sprites) {
@@ -331,11 +321,21 @@ class GameEngine {
         }
         this.renderForeground(context);
     }
-    emulate(delta) {
-        this.tick(delta);
+    internalTick(delta) {
+        let standardDelta = Math.round(1000 / Configs.fps);
+        if (delta > standardDelta + Configs.intervalDelta) {
+            delta = standardDelta + Configs.intervalDelta;
+        }
+        if (delta < standardDelta - Configs.intervalDelta && Configs.ai) {
+            delta = standardDelta - Configs.intervalDelta;
+        }
         for (let sprite of this.sprites) {
             sprite.tick(delta);
         }
+        this.tick(delta);
+    }
+    emulate(delta) {
+        this.internalTick(delta);
     }
 }
 class Bird {
@@ -380,6 +380,7 @@ var Configs;
     Configs.ai = false;
     Configs.learn = true;
     Configs.fps = 60;
+    Configs.intervalDelta = 3;
     Configs.discount = 0.9;
     Configs.alpha = 0.01;
     Configs.width = 768;
@@ -406,7 +407,7 @@ class Emulator {
         let counter = 0;
         while (true) {
             if (nextGameTick == timestamp) {
-                nextGameTick = timestamp + Math.round(Math.random() * 2.5 + Math.random() * 2.5 + 1000 / Configs.fps - 2.5);
+                nextGameTick = timestamp + Math.round(Math.random() * Configs.intervalDelta + Math.random() * Configs.intervalDelta + 1000 / Configs.fps - Configs.intervalDelta);
                 game.emulate(timestamp - lastGameTick);
                 ai.update();
                 lastGameTick = timestamp;

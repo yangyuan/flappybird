@@ -24,19 +24,7 @@ abstract class GameEngine {
 
         this.fps = this.fps * 0.95 + 1 / delta * 0.05 * 1000
 
-        let standardDelta = Math.round(1000 / Configs.fps);
-        if (delta > standardDelta + 3) {
-            delta = standardDelta + 3;
-        }
-
-        if (delta < standardDelta - 3) {
-            delta = standardDelta - 3;
-        }
-
-        for (let sprite of this.sprites) {
-            sprite.tick(delta);
-        }
-        this.tick(delta)
+        this.internalTick(delta);
 
         this.time = time;
 
@@ -47,10 +35,23 @@ abstract class GameEngine {
         this.renderForeground(context);
     }
 
-    emulate(delta: number) {
-        this.tick(delta)
+    private internalTick(delta: number) {
+        let standardDelta = Math.round(1000 / Configs.fps);
+        if (delta > standardDelta + Configs.intervalDelta) {
+            delta = standardDelta + Configs.intervalDelta;
+        }
+
+        if (delta < standardDelta - Configs.intervalDelta && Configs.ai) {
+            delta = standardDelta - Configs.intervalDelta;
+        }
+
         for (let sprite of this.sprites) {
             sprite.tick(delta);
         }
+        this.tick(delta)
+    }
+
+    emulate(delta: number) {
+        this.internalTick(delta);
     }
 }
