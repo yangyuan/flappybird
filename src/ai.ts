@@ -45,9 +45,6 @@ class AiAgent extends BaseAgent {
 
             let pipePos = this.getPipeRelativePosition();
             let delta = Math.abs(pipePos[1]);
-            if (delta < Configs.pipeHeight / 2) {
-                // reward = 1;
-            }
 
             if (this.getScore() > this.lastScore) {
                 reward = 1048576;
@@ -85,10 +82,6 @@ class QLearning {
     noise: number;
 
     constructor(data: string) {
-
-        // JSON.stringify([...this.values])
-        // new Map();
-        // 
         this.noise = 0;
         this.values = <Map<string, number>>new Map(JSON.parse(data))
     }
@@ -121,15 +114,9 @@ class QLearning {
     getKey(state: [number, number, number, number], action: boolean): string {
         let key: string = (action ? "t" : "f");
         key += "," + Math.round(state[0] / 128); // height
-        key += "," + Math.round(state[1]);
-        key += "," + Math.round(this.getMagicNumber(state[2], 100) / 25); //
-        key += "," + Math.round(this.getMagicNumber(state[3], 90) / 9);
-        //key += "," + Math.round(Math.log(state[2]));
-        //key += ","
-        if (state[3] < 0) {
-            //key += "-"
-        }
-        //key += Math.round(Math.abs(state[3])/8);
+        key += "," + Math.round(state[1]); // speed
+        key += "," + Math.round(this.getMagicNumber(state[2], 100) / 25); // position x
+        key += "," + Math.round(this.getMagicNumber(state[3], 90) / 9); // position y
 
         return key;
     }

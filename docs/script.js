@@ -54,7 +54,7 @@ $(function () {
 
     $('input[type=radio][name=options]').change(function () {
         switch (this.value) {
-            case "human":
+            case "play":
                 Configs.ai = false;
                 Configs.learn = false;
                 Configs.epsilon = 0.0;
@@ -69,7 +69,6 @@ $(function () {
                 Configs.learn = true;
                 Configs.epsilon = 0.2;
                 break;
-
         }
     });
 });

@@ -89,9 +89,6 @@ class AiAgent extends BaseAgent {
             let action = this.ai.getAction(state);
             let pipePos = this.getPipeRelativePosition();
             let delta = Math.abs(pipePos[1]);
-            if (delta < Configs.pipeHeight / 2) {
-                // reward = 1;
-            }
             if (this.getScore() > this.lastScore) {
                 reward = 1048576;
                 this.lastScore = this.getScore();
@@ -118,9 +115,6 @@ class AiAgent extends BaseAgent {
 }
 class QLearning {
     constructor(data) {
-        // JSON.stringify([...this.values])
-        // new Map();
-        // 
         this.noise = 0;
         this.values = new Map(JSON.parse(data));
     }
@@ -145,15 +139,9 @@ class QLearning {
     getKey(state, action) {
         let key = (action ? "t" : "f");
         key += "," + Math.round(state[0] / 128); // height
-        key += "," + Math.round(state[1]);
-        key += "," + Math.round(this.getMagicNumber(state[2], 100) / 25); //
-        key += "," + Math.round(this.getMagicNumber(state[3], 90) / 9);
-        //key += "," + Math.round(Math.log(state[2]));
-        //key += ","
-        if (state[3] < 0) {
-            //key += "-"
-        }
-        //key += Math.round(Math.abs(state[3])/8);
+        key += "," + Math.round(state[1]); // speed
+        key += "," + Math.round(this.getMagicNumber(state[2], 100) / 25); // position x
+        key += "," + Math.round(this.getMagicNumber(state[3], 90) / 9); // position y
         return key;
     }
     getMagicNumber(value, base) {
@@ -418,7 +406,7 @@ class Emulator {
         let counter = 0;
         while (true) {
             if (nextGameTick == timestamp) {
-                nextGameTick = timestamp + Math.round(Math.random() * 6 + 1000 / Configs.fps - 3);
+                nextGameTick = timestamp + Math.round(Math.random() * 2.5 + Math.random() * 2.5 + 1000 / Configs.fps - 2.5);
                 game.emulate(timestamp - lastGameTick);
                 ai.update();
                 lastGameTick = timestamp;
@@ -567,7 +555,14 @@ class Pipe {
         return [this.offset + Configs.pipeWidth, this.upper + Configs.pipeHeight / 2];
     }
 }
+/**
+ * The common features.
+ */
 class Util {
+    /**
+     * Flip a coin with a change.
+     * @param epsilon the epsilon value
+     */
     static flipCoin(epsilon) {
         if (Math.random() < epsilon) {
             return true;
