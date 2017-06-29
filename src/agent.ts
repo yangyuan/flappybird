@@ -70,10 +70,10 @@ class BaseAgent {
      * Is bird alive.
      */
     protected isAlive() {
-        if (this.game.state == GameState.Ended) {
-            return false;
-        } else {
+        if (this.game.state == GameState.Playing) {
             return true;
+        } else {
+            return false;
         }
     }
 }

@@ -75,7 +75,10 @@ class AiAgent extends BaseAgent {
     }
 }
 
-
+/**
+ * Q-learning main class.
+ * If you know you know, if you don't know it's meannessless to explain, LOL.
+ */
 class QLearning {
 
     values: Map<string, number>;

@@ -1,5 +1,14 @@
 interface Sprite {
+    /**
+     * Tick event of Sprite.
+     * @param delta the time delta in milliseconds
+     */
     tick(delta: number);
+
+    /**
+     * Render the Sprite.
+     * @param context the CanvasRenderingContext2D
+     */
     render(context: CanvasRenderingContext2D);
 }
 
@@ -14,6 +23,10 @@ abstract class GameEngine {
         this.fps = Configs.fps;
     }
 
+    /**
+     * Tick event of Game.
+     * @param delta the time delta in milliseconds
+     */
     abstract tick(delta: number);
     abstract renderBackground(context: CanvasRenderingContext2D);
     abstract renderForeground(context: CanvasRenderingContext2D);
@@ -22,7 +35,10 @@ abstract class GameEngine {
         let time = new Date();
         let delta = (time.getTime() - this.time.getTime());
 
-        this.fps = this.fps * 0.95 + 1 / delta * 0.05 * 1000
+        this.fps = this.fps * 0.99 + 1 / delta * 0.01 * 1000
+        if (this.fps == Number.POSITIVE_INFINITY) {
+            this.fps = Configs.fps;
+        }
 
         this.internalTick(delta);
 

@@ -57,11 +57,11 @@ class BaseAgent {
      * Is bird alive.
      */
     isAlive() {
-        if (this.game.state == GameState.Ended) {
-            return false;
+        if (this.game.state == GameState.Playing) {
+            return true;
         }
         else {
-            return true;
+            return false;
         }
     }
 }
@@ -132,6 +132,10 @@ class AiAgent extends BaseAgent {
         }
     }
 }
+/**
+ * Q-learning main class.
+ * If you know you know, if you don't know it's meannessless to explain, LOL.
+ */
 class QLearning {
     constructor(data) {
         this.noise = 0;
@@ -331,7 +335,10 @@ class GameEngine {
     render(context) {
         let time = new Date();
         let delta = (time.getTime() - this.time.getTime());
-        this.fps = this.fps * 0.95 + 1 / delta * 0.05 * 1000;
+        this.fps = this.fps * 0.99 + 1 / delta * 0.01 * 1000;
+        if (this.fps == Number.POSITIVE_INFINITY) {
+            this.fps = Configs.fps;
+        }
         this.internalTick(delta);
         this.time = time;
         this.renderBackground(context);
@@ -358,6 +365,9 @@ class GameEngine {
     }
 }
 class Bird {
+    /**
+     * Initializes a new instance of the Bird class.
+     */
     constructor() {
         this.offset = 0;
         this.height = 0;
@@ -373,6 +383,10 @@ class Bird {
         this.velocity = 0;
         this.height = Configs.height / 2;
     }
+    /**
+     * Tick event of Sprite.
+     * @param delta the time delta in milliseconds
+     */
     tick(delta) {
         if (!this.active) {
             return;
@@ -381,15 +395,11 @@ class Bird {
         this.height += (this.velocity + (velocityDelta / 2)) * delta * Configs.birdSpeed;
         this.velocity += velocityDelta;
     }
+    /**
+     * Render the Sprite.
+     * @param context the CanvasRenderingContext2D
+     */
     render(context) {
-        var radius = Configs.birdRadius;
-        //context.beginPath();
-        //context.arc(300, this.height, radius, 0, 2 * Math.PI, false);
-        //context.fillStyle = 'yellow';
-        //context.fill();
-        //context.lineWidth = 5;
-        //context.strokeStyle = '#003300';
-        //context.stroke();
         Assets.drawBird(context, this.height, this.velocity);
     }
 }
@@ -459,12 +469,14 @@ var GameState;
 class Game extends GameEngine {
     constructor() {
         super();
-        this.state = GameState.Playing;
+        this.state = GameState.Ended;
         this.timestamp = 0;
         this.bird = new Bird();
         this.pipes = [];
         this.score = 0;
+        this.bird.reset();
         this.sprites.push(this.bird);
+        Assets.playSoundSwooshing();
     }
     endGame() {
         this.score = 0;
@@ -492,6 +504,10 @@ class Game extends GameEngine {
         Assets.drawScore(context, this.score);
         Assets.drawFps(context, this.fps);
     }
+    /**
+     * Tick event of Game.
+     * @param delta the time delta in milliseconds
+     */
     tick(delta) {
         if (this.state != GameState.Playing) {
             return;
@@ -500,13 +516,13 @@ class Game extends GameEngine {
         this.timestamp += delta;
         let pipes = [];
         if (Math.round(old_timestamp / Configs.pipeInterval) < Math.round(this.timestamp / Configs.pipeInterval)) {
-            let pipe = new Pipe(Math.random() < Math.pow(this.score, 0.5) / 200);
+            let pipe = new Pipe(Math.random() < Math.pow(this.score, 0.5) / 400);
             pipes.push(pipe);
         }
         for (let pipe of this.pipes) {
-            if (pipe.offset < -200) {
+            if (pipe.offset < 0 - Configs.pipeWidth) {
             }
-            else if (pipe.checkCollision(this.bird)) {
+            else if (this.checkCollision(pipe, this.bird)) {
                 Assets.playSoundHit();
                 this.endGame();
                 return;
@@ -531,11 +547,28 @@ class Game extends GameEngine {
         this.sprites = this.pipes.slice();
         this.sprites.push(this.bird);
     }
+    /**
+     * Check collisions betwwen pipe and bird.
+     * @param pipe the Pipe
+     * @param bird the Bird
+     */
+    checkCollision(pipe, bird) {
+        if (bird.offset + Configs.birdRadius > pipe.offset && bird.offset - Configs.birdRadius < pipe.offset + pipe.width) {
+            if (bird.height - Configs.birdRadius < pipe.upper || bird.height + Configs.birdRadius > pipe.upper + pipe.height) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 /**
  * The Sprite of Pipe
  */
 class Pipe {
+    /**
+     * Initializes a new instance of the Pipe class.
+     * @param mario does the pipe include a mario or not
+     */
     constructor(mario) {
         this.offset = Configs.width;
         this.width = Configs.pipeWidth;
@@ -545,15 +578,18 @@ class Pipe {
         this.mario = mario;
         this.marioJumped = false;
     }
+    /**
+     * Tick event of Sprite.
+     * @param delta the time delta in milliseconds
+     */
     tick(delta) {
         this.offset -= delta * Configs.pipeSpeed;
     }
+    /**
+     * Render the Sprite.
+     * @param context the CanvasRenderingContext2D
+     */
     render(context) {
-        //context.beginPath();
-        //context.rect(this.offset, 0, this.width, this.upper);
-        //context.rect(this.offset, this.upper + this.height, this.width, Configs.height);
-        //context.fillStyle = 'green';
-        //context.fill();
         Assets.drawPipe(context, this.offset, this.upper);
         if (this.mario) {
             if (!this.marioJumped && this.offset < Configs.marioJumpOffset) {
@@ -563,14 +599,9 @@ class Pipe {
             Assets.drawMario(context, this.offset, this.upper);
         }
     }
-    checkCollision(bird) {
-        if (bird.offset + Configs.birdRadius > this.offset && bird.offset - Configs.birdRadius < this.offset + this.width) {
-            if (bird.height - Configs.birdRadius < this.upper || bird.height + Configs.birdRadius > this.upper + this.height) {
-                return true;
-            }
-        }
-        return false;
-    }
+    /**
+     * Get the middle right position of the Pipe.
+     */
     getAnchor() {
         return [this.offset + Configs.pipeWidth, this.upper + Configs.pipeHeight / 2];
     }

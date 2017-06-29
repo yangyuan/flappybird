@@ -37,6 +37,10 @@ class Pipe implements Sprite {
      */
     marioJumped: boolean;
 
+    /**
+     * Initializes a new instance of the Pipe class.
+     * @param mario does the pipe include a mario or not
+     */
     constructor(mario: boolean) {
         this.offset = Configs.width;
         this.width = Configs.pipeWidth;
@@ -47,17 +51,19 @@ class Pipe implements Sprite {
         this.marioJumped = false;
     }
 
+    /**
+     * Tick event of Sprite.
+     * @param delta the time delta in milliseconds
+     */
     tick(delta: number) {
         this.offset -= delta * Configs.pipeSpeed;
     }
 
+    /**
+     * Render the Sprite.
+     * @param context the CanvasRenderingContext2D
+     */
     render(context: CanvasRenderingContext2D) {
-        //context.beginPath();
-        //context.rect(this.offset, 0, this.width, this.upper);
-        //context.rect(this.offset, this.upper + this.height, this.width, Configs.height);
-        //context.fillStyle = 'green';
-        //context.fill();
-
         Assets.drawPipe(context, this.offset, this.upper);
 
         if (this.mario) {
@@ -69,16 +75,9 @@ class Pipe implements Sprite {
         }
     }
 
-    checkCollision(bird: Bird): boolean {
-        if (bird.offset + Configs.birdRadius > this.offset && bird.offset - Configs.birdRadius < this.offset + this.width) {
-            if (bird.height - Configs.birdRadius < this.upper || bird.height + Configs.birdRadius > this.upper + this.height) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
+    /**
+     * Get the middle right position of the Pipe.
+     */
     getAnchor(): [number, number] {
         return [this.offset + Configs.pipeWidth, this.upper + Configs.pipeHeight / 2]
     }

@@ -17,13 +17,15 @@ class Game extends GameEngine {
     constructor() {
         super();
 
-        this.state = GameState.Playing;
+        this.state = GameState.Ended;
         this.timestamp = 0;
         this.bird = new Bird();
         this.pipes = [];
         this.score = 0;
 
+        this.bird.reset();
         this.sprites.push(this.bird);
+        Assets.playSoundSwooshing();
     }
 
     endGame() {
@@ -58,8 +60,11 @@ class Game extends GameEngine {
         Assets.drawFps(context, this.fps);
     }
 
+    /**
+     * Tick event of Game.
+     * @param delta the time delta in milliseconds
+     */
     tick(delta: number) {
-
         if (this.state != GameState.Playing) {
             return;
         }
@@ -69,13 +74,13 @@ class Game extends GameEngine {
 
         let pipes = [];
         if (Math.round(old_timestamp / Configs.pipeInterval) < Math.round(this.timestamp / Configs.pipeInterval)) {
-            let pipe = new Pipe(Math.random() < Math.pow(this.score, 0.5) / 200);
+            let pipe = new Pipe(Math.random() < Math.pow(this.score, 0.5) / 400);
             pipes.push(pipe)
         }
 
         for (let pipe of this.pipes) {
-            if (pipe.offset < -200) {
-            } else if (pipe.checkCollision(this.bird)) {
+            if (pipe.offset < 0 - Configs.pipeWidth) {
+            } else if (this.checkCollision(pipe, this.bird)) {
                 Assets.playSoundHit();
                 this.endGame();
                 return;
@@ -83,7 +88,6 @@ class Game extends GameEngine {
                 pipes.push(pipe);
             }
         }
-
 
         for (let pipe of pipes) {
             if (pipe.offset + Configs.pipeWidth + Configs.birdRadius <= this.bird.offset && pipe.scored == false) {
@@ -102,5 +106,20 @@ class Game extends GameEngine {
         this.pipes = pipes;
         this.sprites = this.pipes.slice();
         this.sprites.push(this.bird);
+    }
+
+    /**
+     * Check collisions betwwen pipe and bird.
+     * @param pipe the Pipe
+     * @param bird the Bird
+     */
+    checkCollision(pipe: Pipe, bird: Bird): boolean {
+        if (bird.offset + Configs.birdRadius > pipe.offset && bird.offset - Configs.birdRadius < pipe.offset + pipe.width) {
+            if (bird.height - Configs.birdRadius < pipe.upper || bird.height + Configs.birdRadius > pipe.upper + pipe.height) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

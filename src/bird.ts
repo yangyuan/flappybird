@@ -4,6 +4,9 @@ class Bird implements Sprite {
     height: number = 0;
     velocity: number = 0;
 
+    /**
+     * Initializes a new instance of the Bird class.
+     */
     constructor() {
         this.offset = Configs.birdOffset;
         this.active = false;
@@ -19,6 +22,10 @@ class Bird implements Sprite {
         this.height = Configs.height / 2;
     }
 
+    /**
+     * Tick event of Sprite.
+     * @param delta the time delta in milliseconds
+     */
     tick(delta: number) {
         if (!this.active) {
             return;
@@ -29,17 +36,11 @@ class Bird implements Sprite {
         this.velocity += velocityDelta;
     }
 
+    /**
+     * Render the Sprite.
+     * @param context the CanvasRenderingContext2D
+     */
     render(context: CanvasRenderingContext2D) {
-        var radius = Configs.birdRadius;
-
-        //context.beginPath();
-        //context.arc(300, this.height, radius, 0, 2 * Math.PI, false);
-        //context.fillStyle = 'yellow';
-        //context.fill();
-        //context.lineWidth = 5;
-        //context.strokeStyle = '#003300';
-        //context.stroke();
-
         Assets.drawBird(context, this.height, this.velocity);
     }
 }
